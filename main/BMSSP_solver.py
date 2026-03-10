@@ -1,6 +1,7 @@
 from z3 import *
 from MDP import MDP
-from MDPVariants import line_5, line_7
+from MDPVariants import line_n
+import time
 
 theta_vars = dict()
 delta_vars = dict()
@@ -58,7 +59,7 @@ def distribution(variables):
         *[And(v >= 0, v <= 1) for v in variables],
     )
 
-def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float, optimals: Iterable[int]):
+def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float):
     solver = Solver()
 
     bot = 'bot'
@@ -73,7 +74,7 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float, opt
     #We cannot do better than the fully observable case
     for s in mdp.states():
         for c in range(memory_budget):
-            solver.add(pi(s,c) >= optimals[s])
+            solver.add(pi(s,c) >= mdp.optimal_cost(s))
 
     # Expected cost/reward equations
     for s in mdp.states():        
@@ -81,8 +82,20 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float, opt
             if s in mdp.goals():
                 solver.add(pi(s,c) == 0)
             else:
-                eq1 = sum( (mdp.reward(s) + pi(s2,c2) ) * (y(s) * theta(c,s,a) * delta(c,s,a,c2) * mdp.transition(s,a,s2) + (1 - y(s))* theta(c,bot,a) * delta(c,bot,a,c2) * mdp.transition(s,a,s2)) for c2 in range(memory_budget) for s2 in mdp.states() for a in mdp.actions())
-                solver.add(Or(pi(s,c) == eq1, pi(s,c) == 9999 if c > 0 else False))
+                eq1 = RealVal(0)
+                for c2 in range(memory_budget):
+                    for s2 in mdp.states():
+                        for a in mdp.actions():
+                            p_sas2 = mdp.transition(s, a, s2)
+                            if p_sas2 > 0:
+                                p_obs = y(s) * theta(c, s, a) * delta(c, s, a, c2) * p_sas2
+                                p_bot = (1 - y(s)) * theta(c, bot, a) * delta(c, bot, a, c2) * p_sas2
+                                eq1 = eq1 + (mdp.reward(s) + pi(s2, c2)) * (p_obs + p_bot)
+
+                if c > 0:
+                    solver.add(Or(pi(s, c) == eq1, pi(s, c) == 9999))
+                else:
+                    solver.add(pi(s, c) == eq1)
 
 
     # We want to check if the minimal expected cost is below some threshold
@@ -110,7 +123,12 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float, opt
     # Sensor budget constraint
     solver.add(sum(y(s) for s in non_goal_states) == sensor_budget)
 
+    cpu_start = time.process_time()
     result = solver.check()
+    cpu_end = time.process_time()
+    solve_time = cpu_end - cpu_start
+
+    print("Time:",solve_time, "s")
 
     if result == sat:
         m = solver.model()
@@ -123,5 +141,15 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float, opt
 
 if __name__ == "__main__":
 
-    mdp = line_7()
-    main(mdp = mdp, sensor_budget=1, memory_budget=2, threshold=3, optimals=[3,2,1,0,1,2,3])
+    mdp = line_n(5)
+
+    main(mdp = mdp, sensor_budget=1, memory_budget=2, threshold=2)
+
+
+"""
+stats:
+Line(5): time: 0.1s, threshold 2
+Line(7): time 20s, threshold 3
+Line(9): time 28s, threshold 4
+Line(11): timeout, threshold 5
+"""

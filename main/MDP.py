@@ -8,6 +8,7 @@ class MDP:
         self._initial_states = _initial_states
         self._goal_states = _goals
         self._actions = _actions
+        self._optimals = [0 for _ in range(_states)]
 
         # p(s,a,s') = 0 for all s,a,s'
         self.transition_probabilities = {
@@ -38,6 +39,12 @@ class MDP:
     def goals(self) -> Iterable[int]:
         for g in self._goal_states:
             yield g
+
+    def optimal_cost(self, state:int) -> float:
+        return self._optimals[state]
+
+    def set_optimal_cost(self, state:int, optimal:float) -> None:
+        self._optimals[state] = optimal
 
     def set_reward(self, state:int, reward:float) -> None:
         self.rewards[state] = reward
