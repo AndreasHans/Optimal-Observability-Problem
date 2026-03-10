@@ -15,11 +15,11 @@ pi_s4_c2 = Real('pi_s4_c2')
 
 
 # Choice of observations
-y0 = Real('y0')
-y1 = Real('y1')
-y2 = Real('y2')
-y3 = Real('y3')
-y4 = Real('y4')
+y_0 = Real('y_0')
+y_1 = Real('y_1')
+y_2 = Real('y_2')
+y_3 = Real('y_3')
+y_4 = Real('y_4')
 
 # Rates of theta(c,o) -> a
 x_c1_o0_l = Real('x_c1_o0_l')
@@ -107,51 +107,51 @@ pi_s0_c1>=2, pi_s1_c1>=1, pi_s2_c1>=0, pi_s3_c1>=1, pi_s4_c1>=2,
 pi_s0_c2>=2, pi_s1_c2>=1, pi_s2_c2>=0, pi_s3_c2>=1, pi_s4_c2>=2,
 
 # Expected cost/reward equations
-#pi0 == (1 + pi0) * (y0*xo0l + (1 - y0)*xol) 
-#     + (1 + pi1) * (y0*xo0r + (1 - y0)*xor), 
+#pi0 == (1 + pi0) * (y_0*xo0l + (1 - y_0)*xol) 
+#     + (1 + pi1) * (y_0*xo0r + (1 - y_0)*xor), 
 
-pi_s0_c1 == (1 + pi_s0_c1) * (y0 * x_c1_o0_l * x_c1_o0_l_c1 + (1 - y0)*x_c1_o_l * x_c1_o_l_c1) 
-          + (1 + pi_s0_c2) * (y0 * x_c1_o0_l * x_c1_o0_l_c2 + (1 - y0)*x_c1_o_l * x_c1_o_l_c2)
-          + (1 + pi_s1_c1) * (y0 * x_c1_o0_r * x_c1_o0_r_c1 + (1 - y0)*x_c1_o_r * x_c1_o_r_c1)
-          + (1 + pi_s1_c2) * (y0 * x_c1_o0_r * x_c1_o0_r_c2 + (1 - y0)*x_c1_o_r * x_c1_o_r_c2),
+pi_s0_c1 == (1 + pi_s0_c1) * (y_0 * x_c1_o0_l * x_c1_o0_l_c1 + (1 - y_0)*x_c1_o_l * x_c1_o_l_c1) 
+          + (1 + pi_s0_c2) * (y_0 * x_c1_o0_l * x_c1_o0_l_c2 + (1 - y_0)*x_c1_o_l * x_c1_o_l_c2)
+          + (1 + pi_s1_c1) * (y_0 * x_c1_o0_r * x_c1_o0_r_c1 + (1 - y_0)*x_c1_o_r * x_c1_o_r_c1)
+          + (1 + pi_s1_c2) * (y_0 * x_c1_o0_r * x_c1_o0_r_c2 + (1 - y_0)*x_c1_o_r * x_c1_o_r_c2),
 
-pi_s0_c2 == (1 + pi_s0_c1) * (y0 * x_c2_o0_l * x_c2_o0_l_c1 + (1 - y0)*x_c2_o_l * x_c2_o_l_c1) 
-          + (1 + pi_s0_c2) * (y0 * x_c2_o0_l * x_c2_o0_l_c2 + (1 - y0)*x_c2_o_l * x_c2_o_l_c2)
-          + (1 + pi_s1_c1) * (y0 * x_c2_o0_r * x_c2_o0_r_c1 + (1 - y0)*x_c2_o_r * x_c2_o_r_c1)
-          + (1 + pi_s1_c2) * (y0 * x_c2_o0_r * x_c2_o0_r_c2 + (1 - y0)*x_c2_o_r * x_c2_o_r_c2),
+pi_s0_c2 == (1 + pi_s0_c1) * (y_0 * x_c2_o0_l * x_c2_o0_l_c1 + (1 - y_0)*x_c2_o_l * x_c2_o_l_c1) 
+          + (1 + pi_s0_c2) * (y_0 * x_c2_o0_l * x_c2_o0_l_c2 + (1 - y_0)*x_c2_o_l * x_c2_o_l_c2)
+          + (1 + pi_s1_c1) * (y_0 * x_c2_o0_r * x_c2_o0_r_c1 + (1 - y_0)*x_c2_o_r * x_c2_o_r_c1)
+          + (1 + pi_s1_c2) * (y_0 * x_c2_o0_r * x_c2_o0_r_c2 + (1 - y_0)*x_c2_o_r * x_c2_o_r_c2),
 
-pi_s1_c1 == (1 + pi_s0_c1) * (y1 * x_c1_o1_l * x_c1_o1_l_c1 + (1 - y1)*x_c1_o_l * x_c1_o_l_c1) 
-          + (1 + pi_s0_c2) * (y1 * x_c1_o1_l * x_c1_o1_l_c2 + (1 - y1)*x_c1_o_l * x_c1_o_l_c2)
-          + (1 + pi_s2_c1) * (y1 * x_c1_o1_r * x_c1_o1_r_c1 + (1 - y1)*x_c1_o_r * x_c1_o_r_c1)
-          + (1 + pi_s2_c2) * (y1 * x_c1_o1_r * x_c1_o1_r_c2 + (1 - y1)*x_c1_o_r * x_c1_o_r_c2),
+pi_s1_c1 == (1 + pi_s0_c1) * (y_1 * x_c1_o1_l * x_c1_o1_l_c1 + (1 - y_1)*x_c1_o_l * x_c1_o_l_c1) 
+          + (1 + pi_s0_c2) * (y_1 * x_c1_o1_l * x_c1_o1_l_c2 + (1 - y_1)*x_c1_o_l * x_c1_o_l_c2)
+          + (1 + pi_s2_c1) * (y_1 * x_c1_o1_r * x_c1_o1_r_c1 + (1 - y_1)*x_c1_o_r * x_c1_o_r_c1)
+          + (1 + pi_s2_c2) * (y_1 * x_c1_o1_r * x_c1_o1_r_c2 + (1 - y_1)*x_c1_o_r * x_c1_o_r_c2),
 
-pi_s1_c2 == (1 + pi_s0_c1) * (y1 * x_c2_o1_l * x_c2_o1_l_c1 + (1 - y1)*x_c2_o_l * x_c2_o_l_c1) 
-          + (1 + pi_s0_c2) * (y1 * x_c2_o1_l * x_c2_o1_l_c2 + (1 - y1)*x_c2_o_l * x_c2_o_l_c2)
-          + (1 + pi_s2_c1) * (y1 * x_c2_o1_r * x_c2_o1_r_c1 + (1 - y1)*x_c2_o_r * x_c2_o_r_c1)
-          + (1 + pi_s2_c2) * (y1 * x_c2_o1_r * x_c2_o1_r_c2 + (1 - y1)*x_c2_o_r * x_c2_o_r_c2),
+pi_s1_c2 == (1 + pi_s0_c1) * (y_1 * x_c2_o1_l * x_c2_o1_l_c1 + (1 - y_1)*x_c2_o_l * x_c2_o_l_c1) 
+          + (1 + pi_s0_c2) * (y_1 * x_c2_o1_l * x_c2_o1_l_c2 + (1 - y_1)*x_c2_o_l * x_c2_o_l_c2)
+          + (1 + pi_s2_c1) * (y_1 * x_c2_o1_r * x_c2_o1_r_c1 + (1 - y_1)*x_c2_o_r * x_c2_o_r_c1)
+          + (1 + pi_s2_c2) * (y_1 * x_c2_o1_r * x_c2_o1_r_c2 + (1 - y_1)*x_c2_o_r * x_c2_o_r_c2),
 
 pi_s2_c1 == 0,
 pi_s2_c2 == 0,
 
-pi_s3_c1 == (1 + pi_s2_c1) * (y3 * x_c1_o3_l * x_c1_o3_l_c1 + (1 - y3)*x_c1_o_l * x_c1_o_l_c1) 
-          + (1 + pi_s2_c2) * (y3 * x_c1_o3_l * x_c1_o3_l_c2 + (1 - y3)*x_c1_o_l * x_c1_o_l_c2)
-          + (1 + pi_s4_c1) * (y3 * x_c1_o3_r * x_c1_o3_r_c1 + (1 - y3)*x_c1_o_r * x_c1_o_r_c1)
-          + (1 + pi_s4_c2) * (y3 * x_c1_o3_r * x_c1_o3_r_c2 + (1 - y3)*x_c1_o_r * x_c1_o_r_c2),
+pi_s3_c1 == (1 + pi_s2_c1) * (y_3 * x_c1_o3_l * x_c1_o3_l_c1 + (1 - y_3)*x_c1_o_l * x_c1_o_l_c1) 
+          + (1 + pi_s2_c2) * (y_3 * x_c1_o3_l * x_c1_o3_l_c2 + (1 - y_3)*x_c1_o_l * x_c1_o_l_c2)
+          + (1 + pi_s4_c1) * (y_3 * x_c1_o3_r * x_c1_o3_r_c1 + (1 - y_3)*x_c1_o_r * x_c1_o_r_c1)
+          + (1 + pi_s4_c2) * (y_3 * x_c1_o3_r * x_c1_o3_r_c2 + (1 - y_3)*x_c1_o_r * x_c1_o_r_c2),
 
-pi_s3_c2 == (1 + pi_s2_c1) * (y3 * x_c2_o3_l * x_c2_o3_l_c1 + (1 - y3)*x_c2_o_l * x_c2_o_l_c1) 
-          + (1 + pi_s2_c2) * (y3 * x_c2_o3_l * x_c2_o3_l_c2 + (1 - y3)*x_c2_o_l * x_c2_o_l_c2)
-          + (1 + pi_s4_c1) * (y3 * x_c2_o3_r * x_c2_o3_r_c1 + (1 - y3)*x_c2_o_r * x_c2_o_r_c1)
-          + (1 + pi_s4_c2) * (y3 * x_c2_o3_r * x_c2_o3_r_c2 + (1 - y3)*x_c2_o_r * x_c2_o_r_c2),
+pi_s3_c2 == (1 + pi_s2_c1) * (y_3 * x_c2_o3_l * x_c2_o3_l_c1 + (1 - y_3)*x_c2_o_l * x_c2_o_l_c1) 
+          + (1 + pi_s2_c2) * (y_3 * x_c2_o3_l * x_c2_o3_l_c2 + (1 - y_3)*x_c2_o_l * x_c2_o_l_c2)
+          + (1 + pi_s4_c1) * (y_3 * x_c2_o3_r * x_c2_o3_r_c1 + (1 - y_3)*x_c2_o_r * x_c2_o_r_c1)
+          + (1 + pi_s4_c2) * (y_3 * x_c2_o3_r * x_c2_o3_r_c2 + (1 - y_3)*x_c2_o_r * x_c2_o_r_c2),
 
-pi_s4_c1 == (1 + pi_s3_c1) * (y4 * x_c1_o4_l * x_c1_o4_l_c1 + (1 - y4)*x_c1_o_l * x_c1_o_l_c1) 
-          + (1 + pi_s3_c2) * (y4 * x_c1_o4_l * x_c1_o4_l_c2 + (1 - y4)*x_c1_o_l * x_c1_o_l_c2)
-          + (1 + pi_s4_c1) * (y4 * x_c1_o4_r * x_c1_o4_r_c1 + (1 - y4)*x_c1_o_r * x_c1_o_r_c1)
-          + (1 + pi_s4_c2) * (y4 * x_c1_o4_r * x_c1_o4_r_c2 + (1 - y4)*x_c1_o_r * x_c1_o_r_c2),
+pi_s4_c1 == (1 + pi_s3_c1) * (y_4 * x_c1_o4_l * x_c1_o4_l_c1 + (1 - y_4)*x_c1_o_l * x_c1_o_l_c1) 
+          + (1 + pi_s3_c2) * (y_4 * x_c1_o4_l * x_c1_o4_l_c2 + (1 - y_4)*x_c1_o_l * x_c1_o_l_c2)
+          + (1 + pi_s4_c1) * (y_4 * x_c1_o4_r * x_c1_o4_r_c1 + (1 - y_4)*x_c1_o_r * x_c1_o_r_c1)
+          + (1 + pi_s4_c2) * (y_4 * x_c1_o4_r * x_c1_o4_r_c2 + (1 - y_4)*x_c1_o_r * x_c1_o_r_c2),
 
-pi_s4_c2 == (1 + pi_s3_c1) * (y4 * x_c2_o4_l * x_c2_o4_l_c1 + (1 - y4)*x_c2_o_l * x_c2_o_l_c1) 
-          + (1 + pi_s3_c2) * (y4 * x_c2_o4_l * x_c2_o4_l_c2 + (1 - y4)*x_c2_o_l * x_c2_o_l_c2)
-          + (1 + pi_s4_c1) * (y4 * x_c2_o4_r * x_c2_o4_r_c1 + (1 - y4)*x_c2_o_r * x_c2_o_r_c1)
-          + (1 + pi_s4_c2) * (y4 * x_c2_o4_r * x_c2_o4_r_c2 + (1 - y4)*x_c2_o_r * x_c2_o_r_c2),
+pi_s4_c2 == (1 + pi_s3_c1) * (y_4 * x_c2_o4_l * x_c2_o4_l_c1 + (1 - y_4)*x_c2_o_l * x_c2_o_l_c1) 
+          + (1 + pi_s3_c2) * (y_4 * x_c2_o4_l * x_c2_o4_l_c2 + (1 - y_4)*x_c2_o_l * x_c2_o_l_c2)
+          + (1 + pi_s4_c1) * (y_4 * x_c2_o4_r * x_c2_o4_r_c1 + (1 - y_4)*x_c2_o_r * x_c2_o_r_c1)
+          + (1 + pi_s4_c2) * (y_4 * x_c2_o4_r * x_c2_o4_r_c2 + (1 - y_4)*x_c2_o_r * x_c2_o_r_c2),
 
 # We are dropped uniformly in the line
 # We want to check if the minimal expected cost is below some threshold <= 2
@@ -346,11 +346,11 @@ x_c2_o_r_c1 + x_c2_o_r_c2 == 1,
 
 
 # y is a function that should map every state N to some observable class M
-Or (y0 == 0 , y0 == 1 ),
-Or (y1 == 0 , y1 == 1 ),
-Or (y3 == 0 , y3 == 1 ),
-Or (y4 == 0 , y4 == 1 ),
-y0 + y1 + y3 + y4 == 1
+Or (y_0 == 0 , y_0 == 1 ),
+Or (y_1 == 0 , y_1 == 1 ),
+Or (y_3 == 0 , y_3 == 1 ),
+Or (y_4 == 0 , y_4 == 1 ),
+y_0 + y_1 + y_3 + y_4 == 1
 )
 
 
