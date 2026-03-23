@@ -27,6 +27,11 @@ class MDP:
     def states(self) -> Iterable[int]:
         for i in range(self._states):
             yield i
+        
+    def post(self, state:int, action:str) -> Iterable[int]:
+        for state2 in range(self._states):
+            if self.transition_probabilities[state][action][state2] > 0:
+                yield state2
 
     def actions(self) -> Iterable[str]:
         for a in self._actions:

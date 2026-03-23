@@ -1,3 +1,5 @@
+from typing import List
+
 from z3 import *
 from MDP import MDP
 from MDPVariants import line_n
@@ -7,39 +9,38 @@ theta_vars = dict()
 delta_vars = dict()
 pi_vars = dict()
 y_vars = dict()
+bot = 'bot'
 
-def init_variables(mdp:MDP, memory_budget:int) -> None:
+def init_variables(mdp:MDP, memory_budget: Int) -> None:
     y_vars.clear()
     pi_vars.clear()
     theta_vars.clear()
     delta_vars.clear()
 
-    num_states = len(list(mdp.states()))
+    states = list(mdp.states())
 
     for s in mdp.states():
-        y_vars[s] = Int(f'y_{s}')
+        y_vars[s] = Bool(f'y_{s}')
 
     for s in mdp.states():
          for c in range(memory_budget):
             pi_vars[s,c] = Real(f'pi_{s}_{c}')
 
     for c in range(memory_budget):
-        for o in range(num_states):
+        for o in states:
             for a in mdp.actions():
-                theta_vars[c,o,a] = Int(f'theta_{c}_{o}_{a}')
-
+                theta_vars[c,o,a] = Bool(f'theta_{c}_{o}_{a}')
         for a in mdp.actions():
-            theta_vars[c,'bot',a] = Int(f'theta_{c}_bot_{a}')
+            theta_vars[c,bot,a] = Bool(f'theta_{c}_{bot}_{a}')
 
     for c in range(memory_budget):
-        for o in range(num_states):
-            for a in mdp.actions():
-                for c2 in range(memory_budget):
-                    delta_vars[c,o,a,c2] = Int(f'delta_{c}_{o}_{a}_{c2}')
-
-        for a in mdp.actions():
+        for o in states:
             for c2 in range(memory_budget):
-                delta_vars[c,'bot',a,c2] = Int(f'delta_{c}_bot_{a}_{c2}')
+                delta_vars[c,o,c2] = Bool(f'delta_{c}_{o}_{c2}')
+
+        for c2 in range(memory_budget):
+            delta_vars[c,bot,c2] = Bool(f'delta_{c}_{bot}_{c2}')
+
 
 def y(s:int):
     return y_vars[s]
@@ -50,20 +51,16 @@ def pi(s:int, c:int):
 def theta(c:int, o:int, a:str):
     return theta_vars[c,o,a]
 
-def delta(c:int, o:int, a:str, c2:int):
-    return delta_vars[c,o,a,c2]
+def delta(c:int, o:int, c2:int):
+    return delta_vars[c,o,c2]
 
-def distribution(variables):
-    return And(
-        Sum(variables) == 1,
-        *[Or(v == 0, v == 1) for v in variables],
-    )
+def add_constraint(solver: Solver, constraint):
+    #print(constraint)
+    solver.add(constraint)
 
-def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float):
+def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget: int):
     solver = Solver()
-
-    bot = 'bot'
-
+    
     states = list(mdp.states())
     goals = set(mdp.goals())
     non_goal_states = [s for s in states if s not in goals]
@@ -74,54 +71,51 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float):
     #We cannot do better than the fully observable case
     for s in mdp.states():
         for c in range(memory_budget):
-            solver.add(pi(s,c) >= mdp.optimal_cost(s))
+            add_constraint(solver, pi(s, c) >= mdp.optimal_cost(s))
 
-    # Expected cost/reward equations
-    for s in mdp.states():        
-        for c in range(memory_budget):
-            if s in mdp.goals():
-                solver.add(pi(s,c) == 0)
-            else:
-                eq1 = RealVal(0)
-                for c2 in range(memory_budget):
-                    for s2 in mdp.states():
-                        for a in mdp.actions():
-                            p_sas2 = mdp.transition(s, a, s2)
-                            if p_sas2 > 0:
-                                p_obs = y(s) * theta(c, s, a) * delta(c, s, a, c2) * p_sas2
-                                p_bot = (1 - y(s)) * theta(c, bot, a) * delta(c, bot, a, c2) * p_sas2
-                                eq1 = eq1 + (mdp.reward(s) + pi(s2, c2)) * (p_obs + p_bot)
-
-                if c > 0:
-                    solver.add(Or(pi(s, c) == eq1, pi(s, c) == 9999))
-                else:
-                    solver.add(pi(s, c) == eq1)
-
+    threshold = Q(threshold_terms[0], threshold_terms[1]) if len(threshold_terms) > 1 else threshold_terms[0]
 
     # We want to check if the minimal expected cost is below some threshold
-    solver.add(sum(pi(s,0) for s in initial_states) / len(initial_states) <= threshold)
+    add_constraint(solver, Sum([pi(s, 0) for s in initial_states]) *  Q(1, len(initial_states)) <= threshold)
 
-    # theta(c,o) -> a
-    for c in range(memory_budget):
-        for o in non_goal_states:
-            solver.add(distribution([theta(c,o,a) for a in mdp.actions()]))
-        solver.add(distribution([theta(c,bot,a) for a in mdp.actions()]))
+    # Expected cost/reward equations
+    for s in mdp.goals():
+        for c in range(memory_budget):
+            add_constraint(solver, pi(s, c) == 0)
 
-    # delta(c,o,a) -> c'
-    for c in range(memory_budget):
-        for o in non_goal_states:
-            for a in mdp.actions():
-                solver.add(distribution([delta(c,o,a,c2) for c2 in range(memory_budget)]))
-        for a in mdp.actions():
-            solver.add(distribution([delta(c,bot,a,c2) for c2 in range(memory_budget)]))
-
-
-    # Sensor enabled or disabled constraints
     for s in non_goal_states:
-        solver.add(Or(y(s) == 0, y(s) == 1))
+        for c in range(memory_budget):
+                y_terms = []
+                not_y_terms = []
+                for a in mdp.actions():
+                    for c2 in range(memory_budget):
+                        succ_cost = Sum([
+                            mdp.transition(s, a, s2) * pi(s2, c2)
+                            for s2 in mdp.post(s, a)
+                        ])
+                        y_terms.append(If(And(theta(c, s, a), delta(c, s, c2)), succ_cost, RealVal(0)))
+                        not_y_terms.append(If(And(theta(c, bot, a), delta(c, bot, c2)), succ_cost, RealVal(0)))
+
+                eq1 = Sum(y_terms) if y_terms else RealVal(0)
+                eq2 = Sum(not_y_terms) if not_y_terms else RealVal(0)
+
+                add_constraint(
+                    solver,
+                    Or(pi(s, c) == mdp.reward(s) + If(y(s), eq1, eq2), pi(s, c) == 9999)
+                )
+
+    for c in range(memory_budget):
+        for o in states:
+            add_constraint(solver, PbEq([(theta(c,o,a), 1) for a in mdp.actions()], 1))
+        add_constraint(solver, PbEq([(theta(c,bot,a), 1) for a in mdp.actions()], 1))
+
+    for c in range(memory_budget):
+        for o in states:
+            add_constraint(solver, PbEq([(delta(c,o,c2), 1) for c2 in range(memory_budget)], 1))
+        add_constraint(solver, PbEq([(delta(c,bot,c2), 1) for c2 in range(memory_budget)], 1))
 
     # Sensor budget constraint
-    solver.add(sum(y(s) for s in non_goal_states) == sensor_budget)
+    add_constraint(solver, PbEq([(y(s), 1) for s in non_goal_states], sensor_budget))
 
     cpu_start = time.process_time()
     result = solver.check()
@@ -129,29 +123,29 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float):
     solve_time = cpu_end - cpu_start
 
     print("Time:",solve_time, "s")
+    file_solver = open("solver.txt", "w")
+    file_solver.write(str(solver.sexpr()))
+    file_solver.close()
 
     if result == sat:
         m = solver.model()
         print('This is a solution:')
         print(m)
+
+        file_solution = open("solution.txt", "w")
+        for d in m.decls():
+            file_solution.write(f"{d.name()} = {m[d]}\n")
+        file_solution.close()
+
     elif result == unsat:
         print('No solution!!!')
     else:
         print('Unknown')
 
 if __name__ == "__main__":
-
-    n = 11
-
+    n = 7
+    b = 1
+    t = [n//2]
     mdp = line_n(n)
 
-    main(mdp = mdp, sensor_budget=1, memory_budget=2, threshold=(n-1)/2)
-
-
-"""
-stats:
-Line(5): time: 0.1s, threshold 2
-Line(7): time 20s, threshold 3
-Line(9): time 28s, threshold 4
-Line(11): timeout, threshold 5
-"""
+    main(mdp = mdp, sensor_budget=b, threshold_terms=t, memory_budget=7)
