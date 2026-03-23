@@ -3,7 +3,11 @@ from MDP import MDP
 from MDPVariants import line_n
 import time
 
-# coombines the delta only and repeat node approach
+# Using deterministic as a base, this attemmpts to combine 
+#theory: we do not need to consider both delta and theta values: delta is enough.
+#changes constraint: the sum of actions, in a given node, for going to each controller of the nodes we can reach = 1. 
+
+#downside: this has caused the run time to swing up and down
 
 delta_vars = dict()
 pi_vars = dict()
@@ -28,11 +32,11 @@ def init_variables(mdp:MDP, memory_budget:int) -> None:
         for o in range(num_states):
             for a in mdp.actions():
                 for c2 in range(memory_budget):
-                    delta_vars[c,o,a,c2] = Int(f'delta_{c}_{o}_{a}_{c2}')
+                    delta_vars[c,o,a,c2] = Real(f'delta_{c}_{o}_{a}_{c2}')
 
         for a in mdp.actions():
             for c2 in range(memory_budget):
-                delta_vars[c,'bot',a,c2] = Int(f'delta_{c}_bot_{a}_{c2}')
+                delta_vars[c,'bot',a,c2] = Real(f'delta_{c}_bot_{a}_{c2}')
 
 def y(s:int):
     return y_vars[s]
@@ -67,7 +71,7 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float):
             solver.add(pi(s,c) >= mdp.optimal_cost(s))
 
     # Expected cost/reward equations
-    infinitySimulator = 999999
+
     for s in mdp.states():        
         for c in range(memory_budget):
             if s in mdp.goals():
@@ -81,13 +85,14 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float):
                             if p_sas2 > 0:
                                 p_obs = y(s) * delta(c, s, a, c2) * p_sas2
                                 p_bot = (1 - y(s)) * delta(c, bot, a, c2) * p_sas2
-                                if s == s2 and c == c2: #if we stay in the same node and controller, we can do that without any observation
-                                    eq1 = eq1 + (infinitySimulator) * (p_obs + p_bot)   
-                                else:
-                                    eq1 = eq1 + (mdp.reward(s) + pi(s2, c2)) * (p_obs + p_bot)
+                                eq1 = eq1 + (mdp.reward(s) + pi(s2, c2)) * (p_obs + p_bot)
 
-                solver.add(pi(s, c) == eq1)
-          
+
+                if c > 0:
+                    solver.add(Or(pi(s, c) == eq1, pi(s, c) == 9999))
+                else:
+                    solver.add(pi(s, c) == eq1)
+
 
     # We want to check if the minimal expected cost is below some threshold
     solver.add(sum(pi(s,0) for s in initial_states) / len(initial_states) <= threshold)
@@ -126,37 +131,35 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float):
 
 if __name__ == "__main__":
 
-    n =101
+    n = 69
 
     mdp = line_n(n)
 
     main(mdp = mdp, sensor_budget=1, memory_budget=2, threshold=(n-1)/2)
 
 
-
 """
+
+
 stats:
-Line(5): time: 0.3s, threshold 2
-Line(7): time 0.6s, threshold 3
+Line(5): time: 3s, threshold 2
+Line(7): time 0.1s, threshold 3
 Line(9): time 0.7s, threshold 4
-Line(11): 2.9, threshold 5
-line(13): 5.2s, threshold 6
-line(15): time 2.7s, threshold 7
-line(17): time 1.2s, threshold 8
-line(19): time 20s, threshold 9
-line(21): time 3.8s, threshold 10
-line(23): time 15s, threshold 11
-line(25): time 8s, threshold 12
-line(27): time 8s, threshold 13
-line(29): time 129s, threshold 19
-line(31): time 91s, threshold 20
-line(33): time 53s, threshold 21
-line(35): time 30s, threshold 22
-line(37): time 81s, threshold 23
-line(39): time 70s, threshold 19
-line(41): time 137s, threshold 20
+Line(11): 0.6, threshold 5
+line(13): 2.2s, threshold 6
+line(15): time 2.6s, threshold 7
+line(17): time 2s, threshold 8
+line(19): time 2s, threshold 9
+line(21): time 4s, threshold 10
+line(23): time 2s, threshold 11   
+line(25): time 4.5s, threshold 12
+line(27): time 3.7s, threshold 13
+line(29): time 7s, threshold 14
+line(31): time 5s, threshold 15
+line(33): time 9s, threshold 16
+line(35): time 5s, threshold 17
+line(37): time 4s, threshold 18
+line(39): time 5s, threshold 19
 
-line(49): 46s, threshold 24
-
-Line(69): time 60s,
+line(49): time 26s, threshold 20
 """

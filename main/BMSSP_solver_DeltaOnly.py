@@ -7,6 +7,8 @@ import time
 #theory: we do not need to consider both delta and theta values: delta is enough.
 #changes constraint: the sum of actions, in a given node, for going to each controller of the nodes we can reach = 1. 
 
+#downside: this has caused the run time to swing up and down
+
 delta_vars = dict()
 pi_vars = dict()
 y_vars = dict()
@@ -129,7 +131,7 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float):
 
 if __name__ == "__main__":
 
-    n = 29
+    n = 39
 
     mdp = line_n(n)
 
@@ -140,15 +142,21 @@ if __name__ == "__main__":
 
 
 stats:
-Line(5): time: 0.3s, threshold 2
-Line(7): time 0.6s, threshold 3
-Line(9): time 0.7s, threshold 4
-Line(11): 2.9, threshold 5
-line(13): 5.8s, threshold 6
-
-line(19): time 3.5s, threshold 9
-
+Line(5): time: 0.4s, threshold 2
+Line(7): time 1s, threshold 3
+Line(9): time 1.3s, threshold 4
+Line(11): 4.4, threshold 5
+line(13): 7.9s, threshold 6
+line(15): time 10s, threshold 7
+line(17): time 7s, threshold 8
+line(19): time 4s, threshold 9
+line(21): time 17s, threshold 10
+line(23): time 39s, threshold 11   
+line(25): time 10s, threshold 12
+line(27): time 15s, threshold 13
 line(29): time 81s, threshold 14
-
-line(39): time 139s, threshold 19
+line(31): time 50s, threshold 15
+line(33): time 138s, threshold 16
+line(35): time 60s, threshold 17
+line(39): time 156s, threshold 19
 """

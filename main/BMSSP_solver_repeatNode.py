@@ -146,7 +146,7 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float):
 
 if __name__ == "__main__":
 
-    n = 19
+    n = 5
 
 
     mdp = line_n(n)
@@ -156,8 +156,21 @@ if __name__ == "__main__":
 
 """
 stats:
-Line(5): time: 0.4s, threshold 2
-Line(7): time 2s, threshold 3
-Line(9): time 1.2s, threshold 4
-Line(11): 6s, threshold 5
+Line(5): time: 0.8s, threshold 2
+Line(7): time 2.2s, threshold 3
+Line(9): time 6, threshold 4
+Line(11): 3s, threshold 5
+line(13): time 3.7s, threshold 6
+line(15): time 21s, threshold 7
+linq(17): time 22s, threshold 8
+line(19): time 52s, threshold 9
+line(21): time 51s, threshold 10
+line(23): time 70s, threshold 11
+line(25): time 422s, threshold 12
+lline(27): time 450s, threshold 13
+
+
+
+
+
 """

@@ -9,7 +9,7 @@ class MDP:
         self._goal_states = _goals
         self._actions = _actions
         self._optimals = [0 for _ in range(_states)]
-
+        print(_states)
         # p(s,a,s') = 0 for all s,a,s'
         self.transition_probabilities = {
             state: {

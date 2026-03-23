@@ -28,11 +28,11 @@ def init_variables(mdp:MDP, memory_budget:int) -> None:
         for o in range(num_states):
             for a in mdp.actions():
                 for c2 in range(memory_budget):
-                    delta_vars[c,o,a,c2] = Int(f'delta_{c}_{o}_{a}_{c2}')
+                    delta_vars[c,o,a,c2] = Real(f'delta_{c}_{o}_{a}_{c2}')
 
         for a in mdp.actions():
             for c2 in range(memory_budget):
-                delta_vars[c,'bot',a,c2] = Int(f'delta_{c}_bot_{a}_{c2}')
+                delta_vars[c,'bot',a,c2] = Real(f'delta_{c}_bot_{a}_{c2}')
 
 def y(s:int):
     return y_vars[s]
@@ -126,37 +126,43 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float):
 
 if __name__ == "__main__":
 
-    n =101
+    n = 69
+
 
     mdp = line_n(n)
 
-    main(mdp = mdp, sensor_budget=1, memory_budget=2, threshold=(n-1)/2)
+    main(mdp = mdp, sensor_budget=2, memory_budget=2, threshold=(n-1)/2)
 
 
 
 """
 stats:
-Line(5): time: 0.3s, threshold 2
-Line(7): time 0.6s, threshold 3
-Line(9): time 0.7s, threshold 4
-Line(11): 2.9, threshold 5
-line(13): 5.2s, threshold 6
-line(15): time 2.7s, threshold 7
-line(17): time 1.2s, threshold 8
-line(19): time 20s, threshold 9
-line(21): time 3.8s, threshold 10
-line(23): time 15s, threshold 11
-line(25): time 8s, threshold 12
-line(27): time 8s, threshold 13
-line(29): time 129s, threshold 19
-line(31): time 91s, threshold 20
-line(33): time 53s, threshold 21
-line(35): time 30s, threshold 22
-line(37): time 81s, threshold 23
-line(39): time 70s, threshold 19
-line(41): time 137s, threshold 20
+Line(5): time: 0.1s, threshold 2
+Line(7): time 0.4s, threshold 3
+Line(9): time 0.3s, threshold 4
+Line(11): 1.6s, threshold 5
+line(13): 2.5s, threshold 6
+line(15): time 3.7s, threshold 7
+line(17): time 1s, threshold 8
+line(19): time 2.6s, threshold 9
+line(21): time 12s, threshold 10
+line(23): time 1.7s, threshold 11
+line(25): time 17s, threshold 12
+line(27): time 14s, threshold 13
+line(29): time 3s, threshold 19
+line(31): time 14s, threshold 20
+line(33): time 6s, threshold 21
+line(35): time 7s, threshold 22
+line(37): time 21s, threshold 23
+line(39): time 3s, threshold 19
+line(41): time 15s, threshold 20
 
-line(49): 46s, threshold 24
+line(49): 5.9s, threshold 24
 
-Line(69): time 60s,
+Line(69): time 14s,
+
+line(101): time 91s, threshold 50
+line(103): time 58s, threshold 51
+
+line(151): time 151s, threshold 75
 """
