@@ -71,7 +71,7 @@ def maze(columns:int, rows:int):
         if s < columns: 
              mdp.set_transition(s, "up", s, 1.0)
         #the part of the leg that goes to the line 
-        elif s-columns >= 0 and (s-columns)%3 == 0:
+        elif s-columns >= 0 and (s-columns)%(rows-1) == 0:
             mdp.set_transition(s, "up", s-columns, 1.0)
         else:
             mdp.set_transition(s, "up", s-1 , 1.0)
