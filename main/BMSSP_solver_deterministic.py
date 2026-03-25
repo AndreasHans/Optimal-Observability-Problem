@@ -2,14 +2,17 @@ from typing import List
 
 from z3 import *
 from MDP import MDP
-from MDPVariants import line_n
+from MDPVariants import grid_center, grid_corner_n, line_n
 import time
+from ModelPrinter import ModelPrinter
 
 theta_vars = dict()
 delta_vars = dict()
 pi_vars = dict()
 y_vars = dict()
 bot = 'bot'
+
+min_exp_rew = Real('min_exp_rew')
 
 def init_variables(mdp:MDP, memory_budget: Int) -> None:
     y_vars.clear()
@@ -58,7 +61,7 @@ def add_constraint(solver: Solver, constraint):
     #print(constraint)
     solver.add(constraint)
 
-def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget: int):
+def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget: int, strict_less: bool = True):
     solver = Solver()
     
     states = list(mdp.states())
@@ -76,7 +79,13 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
     threshold = Q(threshold_terms[0], threshold_terms[1]) if len(threshold_terms) > 1 else threshold_terms[0]
 
     # We want to check if the minimal expected cost is below some threshold
-    add_constraint(solver, Sum([pi(s, 0) for s in initial_states]) *  Q(1, len(initial_states)) <= threshold)
+    if strict_less:
+        add_constraint(solver, Sum([pi(s, 0) for s in initial_states]) *  Q(1, len(initial_states)) < threshold)
+    else:
+        add_constraint(solver, Sum([pi(s, 0) for s in initial_states]) *  Q(1, len(initial_states)) <= threshold)
+
+    # Compute the minimum expected reward
+    add_constraint(solver, min_exp_rew == Sum([pi(s, 0) for s in initial_states]) *  Q(1, len(initial_states)))
 
     # Expected cost/reward equations
     for s in mdp.goals():
@@ -129,13 +138,11 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
 
     if result == sat:
         m = solver.model()
-        print('This is a solution:')
-        print(m)
+        #print('This is a solution:')
+        #print(m)
 
-        file_solution = open("solution.txt", "w")
-        for d in m.decls():
-            file_solution.write(f"{d.name()} = {m[d]}\n")
-        file_solution.close()
+        model_printer = ModelPrinter(m)
+        model_printer.print_model()
 
     elif result == unsat:
         print('No solution!!!')
@@ -143,9 +150,11 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
         print('Unknown')
 
 if __name__ == "__main__":
-    n = 7
+    mdp = line_n(15)
     b = 1
-    t = [n//2]
-    mdp = line_n(n)
+    t = [46,7]
+    m = 5
 
-    main(mdp = mdp, sensor_budget=b, threshold_terms=t, memory_budget=7)
+    main(mdp = mdp, sensor_budget=b, threshold_terms=t, memory_budget=m, strict_less=True)
+
+    print("Done")
