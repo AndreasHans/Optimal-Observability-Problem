@@ -2,9 +2,13 @@ from typing import List
 
 from z3 import *
 from MDP import MDP
-from MDPVariants import grid_center, grid_corner_n, line_n
+from MDPVariants import grid_corner_n, line_n, maze
 import time
-from ModelPrinter import ModelPrinter
+import sys
+
+from Z3Result import Z3Result
+from BMSSPResult import BMSSPResult
+from ParseModel import ParseModel
 
 theta_vars = dict()
 delta_vars = dict()
@@ -61,7 +65,7 @@ def add_constraint(solver: Solver, constraint):
     #print(constraint)
     solver.add(constraint)
 
-def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget: int, strict_less: bool = True):
+def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget: int, strict_less: bool) -> Z3Result:
     solver = Solver()
     
     states = list(mdp.states())
@@ -130,31 +134,44 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
     result = solver.check()
     cpu_end = time.process_time()
     solve_time = cpu_end - cpu_start
+    return Z3Result(result, solver.model() if result == sat else None, solve_time)
 
-    print("Time:",solve_time, "s")
-    file_solver = open("solver.txt", "w")
-    file_solver.write(str(solver.sexpr()))
-    file_solver.close()
+if __name__ == "__main__":
 
-    if result == sat:
-        m = solver.model()
-        #print('This is a solution:')
-        #print(m)
+    print("Parsing arguments...")
 
-        model_printer = ModelPrinter(m)
-        model_printer.print_model()
+    type = sys.argv[1]
+    n = int(sys.argv[2])
+    sensor_budget = int(sys.argv[3])
+    threshold_terms = tuple(int(x) for x in sys.argv[4][1:-1].split(','))
+    memory_budget = int(sys.argv[5])
+    strict_less = sys.argv[6].lower() == 'true' if len(sys.argv) > 6 else True
 
-    elif result == unsat:
-        print('No solution!!!')
+    print("Parsed arguments:")
+    print(f"Type: {type}, n: {n}, sensor_budget: {sensor_budget}, threshold_terms: {threshold_terms}, memory_budget: {memory_budget}, strict_less: {strict_less}")
+
+    print("Creating MDP...")
+    if type == 'grid':
+        mdp = grid_corner_n(n)
+    elif type == 'line':
+        mdp = line_n(n)
+    elif type == 'maze':
+        mdp = maze(n,4) # TODO FIX
+    else:
+        raise ValueError(f"Unknown MDP type: {type}")
+
+    print("Created MDP!")
+    print("Running solver...")
+    z3result = main(mdp, sensor_budget, threshold_terms, memory_budget, strict_less)
+
+    if z3result.result == sat:
+        print("Success")
+        bmssp_result = ParseModel.parse_model(z3result.model)
+        bmssp_result.print()
+
+    elif z3result.result == unsat:
+        print('No solution')
     else:
         print('Unknown')
 
-if __name__ == "__main__":
-    mdp = line_n(15)
-    b = 1
-    t = [46,7]
-    m = 5
-
-    main(mdp = mdp, sensor_budget=b, threshold_terms=t, memory_budget=m, strict_less=True)
-
-    print("Done")
+    print("Done!")
