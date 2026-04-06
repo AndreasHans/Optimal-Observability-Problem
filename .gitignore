@@ -188,3 +188,6 @@ fixed_*_z3.py
 **/PD-SSP-config.csv
 **/Pos-POP-config.csv
 **/Pos-SSP-config.csv
+
+solver.txt
+solution.txt
