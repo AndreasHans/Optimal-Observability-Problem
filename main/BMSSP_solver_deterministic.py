@@ -2,7 +2,7 @@ from typing import List
 
 from z3 import *
 from MDP import MDP
-from MDPVariants import grid_center, grid_corner_n, line_n
+from MDPVariants import grid_center, grid_corner_n, line_n, maze
 import time
 from ModelPrinter import ModelPrinter
 
@@ -150,11 +150,12 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
         print('Unknown')
 
 if __name__ == "__main__":
-    mdp = line_n(15)
-    b = 1
-    t = [46,7]
-    m = 5
+    mdp = maze(7,4)
 
+    b = 3
+    t = [8]
+    m = 4
+   
     main(mdp = mdp, sensor_budget=b, threshold_terms=t, memory_budget=m, strict_less=True)
 
     print("Done")

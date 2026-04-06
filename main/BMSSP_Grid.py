@@ -139,9 +139,9 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float):
     solve_time = cpu_end - cpu_start
 
     print("Time:",solve_time, "s")
-    file_solver = open("solver.txt", "w")
-    file_solver.write(str(solver.sexpr()))
-    file_solver.close()
+    #file_solver = open("solver.txt", "w")
+    #file_solver.write(str(solver.sexpr()))
+    #file_solver.close()
 
     if result == sat:
         m = solver.model()
@@ -154,14 +154,14 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int, threshold: float):
         print('Unknown')
 
 if __name__ == "__main__":
-    n = 3
+    n = 5
     m = 3
     mdp = grid_center(n,m)
-    main(mdp = mdp, sensor_budget=1, memory_budget=2, threshold=3)
+    main(mdp = mdp, sensor_budget=1, memory_budget=3, threshold=4)
 
 
 """
-stats:
+stats: 
 Line(5): time: 0.1s, threshold 2
 Line(7): time 20s, threshold 3
 Line(9): time 28s, threshold 4
