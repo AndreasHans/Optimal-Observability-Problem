@@ -1,6 +1,12 @@
 from typing import List
+from pathlib import Path
+import sys
 
 from z3 import *
+
+# Make sibling modules in ../ importable when running this file directly.
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 from MDP import MDP
 from MDPVariants import line_n
 import time
@@ -114,7 +120,7 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int]):
 
 if __name__ == "__main__":
 
-    n = 61
+    n = 75
 
     mdp = line_n(n)
 

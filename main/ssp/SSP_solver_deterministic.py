@@ -1,6 +1,12 @@
 from typing import List
+from pathlib import Path
+import sys
 
 from z3 import *
+
+# Make sibling modules in ../ importable when running this file directly.
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 from MDP import MDP
 from MDPVariants import line_n
 import time
