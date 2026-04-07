@@ -43,6 +43,8 @@ def grid_center(n:int, m:int):
     
     return mdp
 
+def maze_n(n:int):
+    return maze(n, ((n-1)/2))
 
 def maze(columns:int, rows:int):
     if columns % 2 == 0:

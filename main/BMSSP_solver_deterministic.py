@@ -2,7 +2,7 @@ from typing import List
 
 from z3 import *
 from MDP import MDP
-from MDPVariants import grid_corner_n, line_n, maze
+from MDPVariants import grid_corner_n, line_n, maze_n
 import time
 import sys
 
@@ -156,7 +156,7 @@ if __name__ == "__main__":
     elif type == 'line':
         mdp = line_n(n)
     elif type == 'maze':
-        mdp = maze(n,4) # TODO FIX
+        mdp = maze_n(n)
     else:
         raise ValueError(f"Unknown MDP type: {type}")
 
