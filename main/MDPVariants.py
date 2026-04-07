@@ -1,46 +1,51 @@
 from MDP import MDP
 
-def grid_center(n:int, m:int):
-    if n % 2 == 0 or m % 2 == 0:
-        raise ValueError("n and m must be odd")
-    print(f"Creating grid MDP with {n} rows and {m} columns")
+def grid_center_n(n:int):
+    """
+    N x N grid MDP where the goal is in the center.
+    """
+    if n < 3:
+        raise ValueError("n must be at least 3")
+    
+    goal = n * n // 2 
 
-    mdp = MDP(_states=n*m, _initial_states=[i for i in range(n*m) if (i != (n*m)//2)], _goals=[(m//2) * n + (n//2)], _actions=["left", "right", "up", "down"])
-    # make transitions
+    mdp = MDP(_states=n*n, _initial_states=[i for i in range(n*n) if i != goal], _goals=[goal], _actions=["left", "right", "up", "down"])
+
     for s in mdp.states():
-        if s % n == 0: 
+        mdp.set_reward(s, 1.0)
+
+    for s in mdp.goals():
+        mdp.set_reward(s, 0.0)
+
+    for s in mdp.states():
+        col = s % n
+        row = s // n
+
+        if col == 0:
             mdp.set_transition(s, "right", s+1, 1.0)
             mdp.set_transition(s, "left", s, 1.0)
-        elif s-(n-1) % n == 0: #works
+        elif col == n-1:
             mdp.set_transition(s, "right", s, 1.0)
             mdp.set_transition(s, "left", s-1, 1.0)
         else:
             mdp.set_transition(s, "right", s+1, 1.0)
             mdp.set_transition(s, "left", s-1, 1.0)
 
-        if s < n:
+        if row == 0:
             mdp.set_transition(s, "down", s+n, 1.0)
             mdp.set_transition(s, "up", s, 1.0)
-        elif s >= n*(m-1):
+        elif row == n-1:
             mdp.set_transition(s, "down", s, 1.0)
             mdp.set_transition(s, "up", s-n, 1.0)
         else:
             mdp.set_transition(s, "down", s+n, 1.0)
             mdp.set_transition(s, "up", s-n, 1.0)
 
-    # set rewards
-    for s in mdp.states():
-        mdp.set_reward(s, 1.0)
-    
-    for s in mdp.goals():
-        mdp.set_reward(s, 0.0)
-
-    #set optimal costs
     for s in mdp.states():
         row = s // n
         col = s % n
-        mdp.set_optimal_cost(s, abs(row - m//2) + abs(col - n//2))
-    
+        mdp.set_optimal_cost(s, abs(n // 2 - row) + abs(n // 2 - col))
+
     return mdp
 
 def maze_n(n:int):
