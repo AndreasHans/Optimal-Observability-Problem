@@ -11,6 +11,9 @@ class BMSSPResult:
         self.bot = 'bot'
 
     def print(self):
+
+        print(f"Solve time: {self.solve_time} seconds")
+
         if len(self.min_exp_rew) == 2:
             print(f"min_exp_rew = {self.min_exp_rew[0]}/{self.min_exp_rew[1]}")
         else:

@@ -1,5 +1,6 @@
 from z3 import *
 from BMSSPResult import BMSSPResult
+from Z3Result import Z3Result
 
 bot = 'bot'
 
@@ -14,8 +15,11 @@ class ParseModel:
         ls = [int(x) for x in str(value).split('/')]
         return ls
 
-    def parse_model(model: ModelRef) -> BMSSPResult:
+    def parse_model(z3result: Z3Result) -> BMSSPResult:
         result = BMSSPResult()
+
+        result.solve_time = z3result.solve_time
+        model = z3result.model
 
         for d in model.decls():
             value = model[d]

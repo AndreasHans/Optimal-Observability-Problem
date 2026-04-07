@@ -16,7 +16,7 @@ def loop():
     if not z3result.result == sat:
         return None
 
-    curr_best = ParseModel.parse_model(z3result.model)
+    curr_best = ParseModel.parse_model(z3result)
 
 
     while True:
@@ -27,7 +27,7 @@ def loop():
         if not z3result.result == sat:
             return curr_best
 
-        curr_best:BMSSPResult = ParseModel.parse_model(z3result.model)
+        curr_best:BMSSPResult = ParseModel.parse_model(z3result)
 
 
 

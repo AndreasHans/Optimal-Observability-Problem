@@ -166,7 +166,7 @@ if __name__ == "__main__":
 
     if z3result.result == sat:
         print("Success")
-        bmssp_result = ParseModel.parse_model(z3result.model)
+        bmssp_result = ParseModel.parse_model(z3result)
         bmssp_result.print()
 
     elif z3result.result == unsat:
