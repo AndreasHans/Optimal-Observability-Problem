@@ -3,6 +3,7 @@ import stormpy.examples
 import stormpy.examples.files
 from MDPVariants import line_n
 from MDP import MDP
+from MDPtoPrism import POMDPtoPrism
 
 #goal: take an MDP, convert it to storm workable, and iterate over observation functions, trying to find one with a low enough treshold. 
 
@@ -10,26 +11,29 @@ from MDP import MDP
 def main(mdp: MDP, sensor_budget: int, threshold_terms: list[int], memory_budget: int,):
     #step 1: unfold mdp: (this is equivilant to creating a fsc)
     unfolded = mdp_unfolder(mdp, memory_budget)
+    #TODO:iter over obs functions
 
-    #step 2: iterate over obs functions, until solution in threshold is found
-    prismModel = mdp_to_prism(unfolded)
 
-    #step 3: convert it to prism, which storm can read
+    obs = [0,2]
+    pomdp_to_prism(unfolded, obs, memory_budget)
+    stormpy.parse_prism_program("target.prism")
+    
+    
 
     print("done")
  
-def pomdp_to_prism(mpd: MDP, obs:list[int], memory: int):
+def pomdp_to_prism(mdp: MDP, obs:list[int], memory: int):
     #obs is a list of ints, where each int is a state that is observed, and every other state is not observed: the length of the obs should be no longer than budget
     POMDPtoPrism(mdp, "target", obs, memory)
     
   
-    return model
+   
 
 def mdp_unfolder(mdp: MDP, memory: int):
     goals = []
     for goal in mdp.goals():
         for mem in range(memory):
-            goals.append(goal*mem)
+            goals.append(goal + (mdp._states*mem))
 
     actions = []
     actionBlocks = [] # each block is all variants of the same action
@@ -42,9 +46,11 @@ def mdp_unfolder(mdp: MDP, memory: int):
             block.append(action+str(mem))
         actionBlocks.append(block)
 
-    result = MDP(mdp._states*memory, MDP.initial_states,goals, actions)
+    result = MDP(mdp._states*memory, mdp._initial_states, goals, actions)
     #we now have an mdp with the right amount of actions and and states, but needs to do the transitions, optimal costs and rewards
     
+   
+
     for state in mdp.states():
         for mem in range(memory):
             stateNr = state + mem * mdp._states
