@@ -3,6 +3,7 @@ import stormpy.examples
 import stormpy.examples.files
 from MDPVariants import line_n
 from MDP import MDP
+
 #goal: take an MDP, convert it to storm workable, and iterate over observation functions, trying to find one with a low enough treshold. 
 
 
@@ -10,18 +11,19 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: list[int], memory_budget
     #step 1: unfold mdp: (this is equivilant to creating a fsc)
     unfolded = mdp_unfolder(mdp, memory_budget)
 
-    #step 2: convert to something storm can read
+    #step 2: iterate over obs functions, until solution in threshold is found
+    prismModel = mdp_to_prism(unfolded)
 
-    prismModel = mdp_to_prism(mdp)
-
-    #step 3: iterate over obs functions, until solution in threshold is found
+    #step 3: convert it to prism, which storm can read
 
     print("done")
-
-def mdp_to_prism(mpd: MDP):
-    program = []
+ 
+def pomdp_to_prism(mpd: MDP, obs:list[int], memory: int):
+    #obs is a list of ints, where each int is a state that is observed, and every other state is not observed: the length of the obs should be no longer than budget
+    POMDPtoPrism(mdp, "target", obs, memory)
     
-    return program
+  
+    return model
 
 def mdp_unfolder(mdp: MDP, memory: int):
     goals = []
@@ -41,7 +43,7 @@ def mdp_unfolder(mdp: MDP, memory: int):
         actionBlocks.append(block)
 
     result = MDP(mdp._states*memory, MDP.initial_states,goals, actions)
-    #we now have an mdp with the right amount of actions and and states, but needs to do the transitions. n stuff. 
+    #we now have an mdp with the right amount of actions and and states, but needs to do the transitions, optimal costs and rewards
     
     for state in mdp.states():
         for mem in range(memory):
