@@ -33,13 +33,18 @@ class BMSSPResult:
 
         for c, o, a in self.theta_vars:
             if o in enabled_sensors or o == self.bot:
-                if is_true(self.theta_vars[c, o, a]):
-                    val = f"theta({c}, {o}, {a})"
-                    print(val)
+                v = self.theta_vars[c, o, a]
+                if is_true(v):
+                    print(f"theta({c}, {o}, {a})")
+                elif is_rational_value(v) and v.numerator_as_long() != 0:
+                    print(f"theta({c}, {o}, {a}) = {v}")
 
         for c, o, c2 in self.delta_vars:
             if o in enabled_sensors or o == self.bot:
-                if is_true(self.delta_vars[c, o, c2]):
+                v = self.delta_vars[c, o, c2]
+                if is_true(v):
                     val = f"delta({c}, {o}, {c2})"
                     print(val)
-
+                elif is_rational_value(v) and v.numerator_as_long() != 0:
+                    val = f"delta({c}, {o}, {c2}) = {v}"
+                    print(val)

@@ -25,6 +25,9 @@ class ParseModel:
             value = model[d]
             name = d.name()
 
+            if "step" in name:
+                continue
+
             if name == 'min_exp_rew':
                 result.min_exp_rew = ParseModel.parse_min_exp_rew(value)
                 continue
