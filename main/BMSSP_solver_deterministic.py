@@ -14,6 +14,7 @@ theta_vars = dict()
 delta_vars = dict()
 pi_vars = dict()
 y_vars = dict()
+reachable_vars = dict()
 bot = 'bot'
 
 min_exp_rew = Real('min_exp_rew')
@@ -23,6 +24,7 @@ def init_variables(mdp:MDP, memory_budget: Int) -> None:
     pi_vars.clear()
     theta_vars.clear()
     delta_vars.clear()
+    reachable_vars.clear()
 
     states = list(mdp.states())
 
@@ -32,6 +34,7 @@ def init_variables(mdp:MDP, memory_budget: Int) -> None:
     for s in mdp.states():
          for c in range(memory_budget):
             pi_vars[s,c] = Real(f'pi_{s}_{c}')
+            reachable_vars[s,c] = Bool(f'reach_{s}_{c}')
 
     for c in range(memory_budget):
         for o in states:
@@ -61,6 +64,9 @@ def theta(c:int, o:int, a:str):
 def delta(c:int, o:int, c2:int):
     return delta_vars[c,o,c2]
 
+def reachable(s:int, c:int):
+    return reachable_vars[s,c]
+
 def add_constraint(solver: Solver, constraint):
     #print(constraint)
     solver.add(constraint)
@@ -74,6 +80,29 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
     initial_states = list(mdp.initial_states())
 
     init_variables(mdp, memory_budget)
+
+    for s in initial_states:
+        add_constraint(solver, reachable(s, 0))
+
+    for s in non_goal_states:
+        for c in range(memory_budget):
+            for a in mdp.actions():
+                for c2 in range(memory_budget):
+                    for s2 in mdp.post(s, a):
+                        add_constraint(
+                            solver,
+                            Implies(
+                                And(reachable(s, c), y(s), theta(c, s, a), delta(c, s, c2)),
+                                reachable(s2, c2)
+                            )
+                        )
+                        add_constraint(
+                            solver,
+                            Implies(
+                                And(reachable(s, c), Not(y(s)), theta(c, bot, a), delta(c, bot, c2)),
+                                reachable(s2, c2)
+                            )
+                        )
 
     #We cannot do better than the fully observable case
     for s in mdp.states():
@@ -94,7 +123,7 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
     # Expected cost/reward equations
     for s in mdp.goals():
         for c in range(memory_budget):
-            add_constraint(solver, pi(s, c) == 0)
+            add_constraint(solver, Implies(reachable(s, c), pi(s, c) == 0))
 
     for s in non_goal_states:
         for c in range(memory_budget):
@@ -114,7 +143,7 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
 
                 add_constraint(
                     solver,
-                    Or(pi(s, c) == mdp.reward(s) + If(y(s), eq1, eq2), pi(s, c) == 9999)
+                    Implies(reachable(s, c), pi(s, c) == mdp.reward(s) + If(y(s), eq1, eq2))
                 )
 
     for c in range(memory_budget):
@@ -171,6 +200,7 @@ if __name__ == "__main__":
 
     elif z3result.result == unsat:
         print('No solution')
+        print("Time taken: ", z3result.solve_time, " seconds")
     else:
         print('Unknown')
 
