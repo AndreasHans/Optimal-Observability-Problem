@@ -81,9 +81,11 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
 
     init_variables(mdp, memory_budget)
 
+    # Every initial state is reachable with the initial memory state
     for s in initial_states:
         add_constraint(solver, reachable(s, 0))
 
+    # A (state, memory) pair is reachable if we can reach it from some predecessor (state, memory) pair
     for s in non_goal_states:
         for c in range(memory_budget):
             for a in mdp.actions():
