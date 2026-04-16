@@ -161,6 +161,21 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
     # Sensor budget constraint
     add_constraint(solver, PbEq([(y(s), 1) for s in non_goal_states], sensor_budget))
 
+    # Symmetry breaking: force memory states to be used in order
+    # A memory state c is "used" if there exists c',o such that delta(c',o,c) holds
+    # and o is either bot or is a state s with y(s) enabled
+    if memory_budget > 1:
+        for c in range(memory_budget - 1):
+            c1_used = Or(
+                [delta(c0, bot, c + 1) for c0 in range(memory_budget)] +
+                [And(delta(c0, s, c + 1), y(s)) for c0 in range(memory_budget) for s in non_goal_states]
+            )
+            c_used = Or(
+                [delta(c0, bot, c) for c0 in range(memory_budget)] +
+                [And(delta(c0, s, c), y(s)) for c0 in range(memory_budget) for s in non_goal_states]
+            )
+            add_constraint(solver, Implies(c1_used, c_used))
+
     cpu_start = time.process_time()
     result = solver.check()
     cpu_end = time.process_time()
