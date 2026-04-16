@@ -73,7 +73,7 @@ def add_constraint(solver: Solver, constraint):
 
 def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget: int, strict_less: bool) -> Z3Result:
     solver = Solver()
-    
+
     states = list(mdp.states())
     goals = set(mdp.goals())
     non_goal_states = [s for s in states if s not in goals]
@@ -111,6 +111,14 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
         for c in range(memory_budget):
             add_constraint(solver, pi(s, c) >= mdp.optimal_cost(s))
 
+    # Fix pi for unreachable (s, c) pairs to a large value
+    # Upper bound on pi for reachable pairs: worst-case cost in the MDP
+    M = 9999
+    for s in mdp.states():
+        for c in range(memory_budget):
+            add_constraint(solver, Implies(Not(reachable(s, c)), pi(s, c) == M))
+            add_constraint(solver, Implies(reachable(s, c), pi(s, c) <= M))
+
     threshold = Q(threshold_terms[0], threshold_terms[1]) if len(threshold_terms) > 1 else threshold_terms[0]
 
     # We want to check if the minimal expected cost is below some threshold
@@ -128,25 +136,39 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
             add_constraint(solver, Implies(reachable(s, c), pi(s, c) == 0))
 
     for s in non_goal_states:
+        # Pre-compute successor costs per (a, c2) - shared across all memory states c
+        succ_cost_cache = {}
+        for a in mdp.actions():
+            successors = list(mdp.post(s, a))
+            for c2 in range(memory_budget):
+                if successors:
+                    succ_cost_cache[a, c2] = mdp.reward(s) + Sum([
+                        mdp.transition(s, a, s2) * pi(s2, c2)
+                        for s2 in successors
+                    ])
+                else:
+                    succ_cost_cache[a, c2] = RealVal(mdp.reward(s))
+
         for c in range(memory_budget):
-                y_terms = []
-                not_y_terms = []
-                for a in mdp.actions():
-                    for c2 in range(memory_budget):
-                        succ_cost = Sum([
-                            mdp.transition(s, a, s2) * pi(s2, c2)
-                            for s2 in mdp.post(s, a)
-                        ])
-                        y_terms.append(If(And(theta(c, s, a), delta(c, s, c2)), succ_cost, RealVal(0)))
-                        not_y_terms.append(If(And(theta(c, bot, a), delta(c, bot, c2)), succ_cost, RealVal(0)))
-
-                eq1 = Sum(y_terms) if y_terms else RealVal(0)
-                eq2 = Sum(not_y_terms) if not_y_terms else RealVal(0)
-
-                add_constraint(
-                    solver,
-                    Implies(reachable(s, c), pi(s, c) == mdp.reward(s) + If(y(s), eq1, eq2))
-                )
+            for a in mdp.actions():
+                for c2 in range(memory_budget):
+                    cost = succ_cost_cache[a, c2]
+                    # Observed case: y(s) true, observation = s
+                    add_constraint(
+                        solver,
+                        Implies(
+                            And(reachable(s, c), y(s), theta(c, s, a), delta(c, s, c2)),
+                            pi(s, c) == cost
+                        )
+                    )
+                    # Unobserved case: y(s) false, observation = bot
+                    add_constraint(
+                        solver,
+                        Implies(
+                            And(reachable(s, c), Not(y(s)), theta(c, bot, a), delta(c, bot, c2)),
+                            pi(s, c) == cost
+                        )
+                    )
 
     for c in range(memory_budget):
         for o in states:
