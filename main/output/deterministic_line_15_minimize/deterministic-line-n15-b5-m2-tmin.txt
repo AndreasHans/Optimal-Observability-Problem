@@ -1,0 +1,46 @@
+Solve time: 0.078125 seconds
+min_exp_rew = 30/7
+y(9)
+y(12)
+y(10)
+y(11)
+y(14)
+pi(13, 0) = 8
+pi(10, 0) = 3
+pi(5, 0) = 2
+pi(7, 0) = 0
+pi(14, 0) = 7
+pi(11, 0) = 4
+pi(3, 0) = 4
+pi(2, 0) = 5
+pi(9, 0) = 2
+pi(1, 0) = 6
+pi(12, 0) = 5
+pi(4, 0) = 3
+pi(8, 0) = 3
+pi(6, 0) = 1
+pi(0, 0) = 7
+theta(0, bot, right)
+theta(0, 10, left)
+theta(1, 12, right)
+theta(1, 9, right)
+theta(0, 14, left)
+theta(0, 12, left)
+theta(0, 9, left)
+theta(1, 11, right)
+theta(0, 11, left)
+theta(1, 10, right)
+theta(1, bot, left)
+theta(1, 14, left)
+delta(1, 9, 0)
+delta(1, 10, 1)
+delta(0, bot, 0)
+delta(1, 14, 1)
+delta(0, 11, 0)
+delta(0, 12, 0)
+delta(1, 12, 1)
+delta(0, 9, 1)
+delta(1, 11, 1)
+delta(0, 14, 1)
+delta(0, 10, 0)
+delta(1, bot, 0)
