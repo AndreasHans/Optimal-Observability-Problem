@@ -15,6 +15,7 @@ delta_vars = dict()
 pi_vars = dict()
 y_vars = dict()
 reachable_vars = dict()
+used_memory_state_vars = dict()
 bot = 'bot'
 
 min_exp_rew = Real('min_exp_rew')
@@ -25,6 +26,7 @@ def init_variables(mdp:MDP, memory_budget: Int) -> None:
     theta_vars.clear()
     delta_vars.clear()
     reachable_vars.clear()
+    used_memory_state_vars.clear()
 
     states = list(mdp.states())
 
@@ -51,6 +53,8 @@ def init_variables(mdp:MDP, memory_budget: Int) -> None:
         for c2 in range(memory_budget):
             delta_vars[c,bot,c2] = Bool(f'delta_{c}_{bot}_{c2}')
 
+    for c in range(memory_budget):
+        used_memory_state_vars[c] = Bool(f'used_mem_{c}')
 
 def y(s:int):
     return y_vars[s]
@@ -66,6 +70,9 @@ def delta(c:int, o:int, c2:int):
 
 def reachable(s:int, c:int):
     return reachable_vars[s,c]
+
+def used_memory_state(c:int):
+    return used_memory_state_vars[c]
 
 def add_constraint(solver: Solver, constraint):
     #print(constraint)
@@ -123,24 +130,28 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int) -> Z3Result:
 
     for s in non_goal_states:
         for c in range(memory_budget):
-                y_terms = []
-                not_y_terms = []
-                for a in mdp.actions():
-                    for c2 in range(memory_budget):
-                        succ_cost = Sum([
-                            mdp.transition(s, a, s2) * pi(s2, c2)
-                            for s2 in mdp.post(s, a)
-                        ])
-                        y_terms.append(If(And(theta(c, s, a), delta(c, s, c2)), succ_cost, RealVal(0)))
-                        not_y_terms.append(If(And(theta(c, bot, a), delta(c, bot, c2)), succ_cost, RealVal(0)))
-
-                eq1 = Sum(y_terms) if y_terms else RealVal(0)
-                eq2 = Sum(not_y_terms) if not_y_terms else RealVal(0)
-
-                add_constraint(
-                    solver,
-                    Implies(reachable(s, c), pi(s, c) == mdp.reward(s) + If(y(s), eq1, eq2))
-                )
+            for a in mdp.actions():
+                for c2 in range(memory_budget):
+                    cost = mdp.reward(s) + Sum([
+                        mdp.transition(s, a, s2) * pi(s2, c2)
+                        for s2 in mdp.post(s, a)
+                    ])
+                    # Observed case: y(s) true, observation = s
+                    add_constraint(
+                        solver,
+                        Implies(
+                            And(reachable(s, c), y(s), theta(c, s, a), delta(c, s, c2)),
+                            pi(s, c) == cost
+                        )
+                    )
+                    # Unobserved case: y(s) false, observation = bot
+                    add_constraint(
+                        solver,
+                        Implies(
+                            And(reachable(s, c), Not(y(s)), theta(c, bot, a), delta(c, bot, c2)),
+                            pi(s, c) == cost
+                        )
+                    )
 
     for c in range(memory_budget):
         for o in states:
@@ -154,6 +165,18 @@ def main(mdp: MDP, sensor_budget: int, memory_budget: int) -> Z3Result:
 
     # Sensor budget constraint
     add_constraint(solver, PbEq([(y(s), 1) for s in non_goal_states], sensor_budget))
+
+    # Define used_memory_state(c) to be true iff a memory state c is reachable
+    for c in range(memory_budget):
+        add_constraint(
+            solver,
+            used_memory_state(c) == Or([reachable(s, c) for s in states])
+        )
+
+    # Symmetry breaking: force memory states to be used in order
+    for c in range(1, memory_budget):
+        # A memory state cannot be used unless the previous one is used
+        add_constraint(solver, Implies(used_memory_state(c), used_memory_state(c - 1)))
 
     cpu_start = time.process_time()
     result = solver.check()
