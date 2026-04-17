@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from z3 import *
 from MDP import MDP
@@ -75,9 +75,12 @@ def add_constraint(solver: Solver, constraint):
     #print(constraint)
     solver.add(constraint)
 
-def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget: int, strict_less: bool) -> Z3Result:
-    solver = Solver()
-    
+def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], memory_budget: int, strict_less: bool) -> Z3Result:
+    # If threshold_terms is None/empty, run in minimization mode using Optimize();
+    # otherwise run in threshold-check mode using Solver().
+    minimize_mode = not threshold_terms
+    solver = Optimize() if minimize_mode else Solver()
+
     states = list(mdp.states())
     goals = set(mdp.goals())
     non_goal_states = [s for s in states if s not in goals]
@@ -115,16 +118,19 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
         for c in range(memory_budget):
             add_constraint(solver, pi(s, c) >= mdp.optimal_cost(s))
 
-    threshold = Q(threshold_terms[0], threshold_terms[1]) if len(threshold_terms) > 1 else threshold_terms[0]
-
-    # We want to check if the minimal expected cost is below some threshold
-    if strict_less:
-        add_constraint(solver, Sum([pi(s, 0) for s in initial_states]) *  Q(1, len(initial_states)) < threshold)
-    else:
-        add_constraint(solver, Sum([pi(s, 0) for s in initial_states]) *  Q(1, len(initial_states)) <= threshold)
-
     # Compute the minimum expected reward
     add_constraint(solver, min_exp_rew == Sum([pi(s, 0) for s in initial_states]) *  Q(1, len(initial_states)))
+
+    if minimize_mode:
+        solver.minimize(min_exp_rew)
+    else:
+        threshold = Q(threshold_terms[0], threshold_terms[1]) if len(threshold_terms) > 1 else threshold_terms[0]
+
+        # We want to check if the minimal expected cost is below some threshold
+        if strict_less:
+            add_constraint(solver, min_exp_rew < threshold)
+        else:
+            add_constraint(solver, min_exp_rew <= threshold)
 
     # Expected cost/reward equations
     for s in mdp.goals():
@@ -186,7 +192,12 @@ if __name__ == "__main__":
     type = sys.argv[1]
     n = int(sys.argv[2])
     sensor_budget = int(sys.argv[3])
-    threshold_terms = tuple(int(x) for x in sys.argv[4][1:-1].split(','))
+    # Threshold arg: pass '[]' or 'none' to run in minimization mode.
+    threshold_arg = sys.argv[4]
+    if threshold_arg.lower() in ('none', '[]', ''):
+        threshold_terms = None
+    else:
+        threshold_terms = tuple(int(x) for x in threshold_arg[1:-1].split(','))
     memory_budget = int(sys.argv[5])
     strict_less = sys.argv[6].lower() == 'true' if len(sys.argv) > 6 else True
 
