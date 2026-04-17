@@ -15,6 +15,7 @@ delta_vars = dict()
 pi_vars = dict()
 y_vars = dict()
 reachable_vars = dict()
+used_memory_state_vars = dict()
 bot = 'bot'
 
 min_exp_rew = Real('min_exp_rew')
@@ -25,6 +26,7 @@ def init_variables(mdp:MDP, memory_budget: Int) -> None:
     theta_vars.clear()
     delta_vars.clear()
     reachable_vars.clear()
+    used_memory_state_vars.clear()
 
     states = list(mdp.states())
 
@@ -51,6 +53,8 @@ def init_variables(mdp:MDP, memory_budget: Int) -> None:
         for c2 in range(memory_budget):
             delta_vars[c,bot,c2] = Bool(f'delta_{c}_{bot}_{c2}')
 
+    for c in range(memory_budget):
+        used_memory_state_vars[c] = Bool(f'used_mem_{c}')
 
 def y(s:int):
     return y_vars[s]
@@ -66,6 +70,9 @@ def delta(c:int, o:int, c2:int):
 
 def reachable(s:int, c:int):
     return reachable_vars[s,c]
+
+def used_memory_state(c:int):
+    return used_memory_state_vars[c]
 
 def add_constraint(solver: Solver, constraint):
     #print(constraint)
@@ -117,7 +124,7 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
     for s in mdp.states():
         for c in range(memory_budget):
             add_constraint(solver, Implies(Not(reachable(s, c)), pi(s, c) == M))
-            add_constraint(solver, Implies(reachable(s, c), pi(s, c) <= M))
+            add_constraint(solver, Implies(reachable(s, c), pi(s, c) < M))
 
     threshold = Q(threshold_terms[0], threshold_terms[1]) if len(threshold_terms) > 1 else threshold_terms[0]
 
@@ -136,23 +143,13 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
             add_constraint(solver, Implies(reachable(s, c), pi(s, c) == 0))
 
     for s in non_goal_states:
-        # Pre-compute successor costs per (a, c2) - shared across all memory states c
-        succ_cost_cache = {}
-        for a in mdp.actions():
-            successors = list(mdp.post(s, a))
-            for c2 in range(memory_budget):
-                if successors:
-                    succ_cost_cache[a, c2] = mdp.reward(s) + Sum([
-                        mdp.transition(s, a, s2) * pi(s2, c2)
-                        for s2 in successors
-                    ])
-                else:
-                    succ_cost_cache[a, c2] = RealVal(mdp.reward(s))
-
         for c in range(memory_budget):
             for a in mdp.actions():
                 for c2 in range(memory_budget):
-                    cost = succ_cost_cache[a, c2]
+                    cost = mdp.reward(s) + Sum([
+                        mdp.transition(s, a, s2) * pi(s2, c2)
+                        for s2 in mdp.post(s, a)
+                    ])
                     # Observed case: y(s) true, observation = s
                     add_constraint(
                         solver,
@@ -184,19 +181,12 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
     add_constraint(solver, PbEq([(y(s), 1) for s in non_goal_states], sensor_budget))
 
     # Symmetry breaking: force memory states to be used in order
-    # A memory state c is "used" if there exists c',o such that delta(c',o,c) holds
-    # and o is either bot or is a state s with y(s) enabled
-    if memory_budget > 1:
-        for c in range(memory_budget - 1):
-            c1_used = Or(
-                [delta(c0, bot, c + 1) for c0 in range(memory_budget)] +
-                [And(delta(c0, s, c + 1), y(s)) for c0 in range(memory_budget) for s in non_goal_states]
-            )
-            c_used = Or(
-                [delta(c0, bot, c) for c0 in range(memory_budget)] +
-                [And(delta(c0, s, c), y(s)) for c0 in range(memory_budget) for s in non_goal_states]
-            )
-            add_constraint(solver, Implies(c1_used, c_used))
+    for i in range(1, memory_budget):
+        # A memory state cannot be used unless the previous one is used
+        add_constraint(solver, Implies(used_memory_state(i), used_memory_state(i - 1)))
+        term1 = Or([delta(j, bot, i) for j in range(memory_budget)])
+        term2 = Or([And(delta(j, s, i), y(s)) for j in range(memory_budget) for s in non_goal_states])
+        add_constraint(solver, Implies(used_memory_state(i), Or(term1, term2)))
 
     cpu_start = time.process_time()
     result = solver.check()
