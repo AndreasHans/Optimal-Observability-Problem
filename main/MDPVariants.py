@@ -41,6 +41,15 @@ def grid_center_n(n:int):
             mdp.set_transition(s, "down", s+n, 1.0)
             mdp.set_transition(s, "up", s-n, 1.0)
 
+    for s in mdp.goals():
+        for a in mdp.actions():
+            for s2 in mdp.states():
+                if s2 != s:
+                    mdp.set_transition(s, a, s2, 0.0)
+                else:
+                    mdp.set_transition(s, a, s2, 1.0)
+
+
     for s in mdp.states():
         row = s // n
         col = s % n
@@ -125,7 +134,16 @@ def maze(columns:int, rows:int):
         elif s < (columns + 2 * rows):
             mdp.set_optimal_cost(s, goal - s)  
         else:
-            mdp.set_optimal_cost(s, mid + rows + s - (columns + 2 * rows) + 1)  
+            mdp.set_optimal_cost(s, mid + rows + s - (columns + 2 * rows) + 1)
+
+    for s in mdp.goals():
+        for a in mdp.actions():
+            for s2 in mdp.states():
+                if s2 != s:
+                    mdp.set_transition(s, a, s2, 0.0)
+                else:
+                    mdp.set_transition(s, a, s2, 1.0)
+  
    
    
     return mdp
@@ -161,6 +179,15 @@ def line_n(n:int):
 
     for s in mdp.states():
         mdp.set_optimal_cost(s, abs(s - n//2))
+
+    for s in mdp.goals():
+        for a in mdp.actions():
+            for s2 in mdp.states():
+                if s2 != s:
+                    mdp.set_transition(s, a, s2, 0.0)
+                else:
+                    mdp.set_transition(s, a, s2, 1.0)
+
 
     return mdp
 
@@ -210,6 +237,14 @@ def grid_corner_n(n:int):
         row = s // n
         col = s % n
         mdp.set_optimal_cost(s, (n - 1 - row) + (n - 1 - col))
+
+    for s in mdp.goals():
+        for a in mdp.actions():
+            for s2 in mdp.states():
+                if s2 != s:
+                    mdp.set_transition(s, a, s2, 0.0)
+                else:
+                    mdp.set_transition(s, a, s2, 1.0)
 
 
     return mdp
