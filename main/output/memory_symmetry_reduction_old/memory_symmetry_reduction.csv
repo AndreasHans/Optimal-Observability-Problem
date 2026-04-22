@@ -1,0 +1,13 @@
+family,type,size,budget,memory,threshold,time,status,reward
+deterministic,line,501,1,2,<=250,4.203125,sat,250
+deterministic,line,501,1,2,<250,8.953125,unsat,
+deterministic,line,101,1,3,<=4999/100,2.187500,sat,4999/100
+deterministic,line,101,1,3,<4999/100,3.343750,unsat,
+deterministic,line,101,1,4,<=4997/100,0.984375,sat,4997/100
+deterministic,line,101,1,4,<4997/100,52.687500,unsat,
+deterministic,maze,11,11,2,<=49/5,0.171875,sat,49/5
+deterministic,maze,11,11,2,<49/5,105.671875,unsat,
+deterministic,grid,5,0,5,<=65/12,0.562500,sat,65/12
+deterministic,grid,5,0,5,<65/12,46.140625,unsat,
+deterministic,grid,7,2,3,<=161/24,0.359375,sat,161/24
+deterministic,grid,7,2,3,<161/24,16.203125,unsat,
