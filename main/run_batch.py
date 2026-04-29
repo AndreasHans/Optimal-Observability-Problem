@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-TIMEOUT_SECONDS = 120  # 2 minutes per instance
+TIMEOUT_SECONDS = 180  # 3 minutes per instance
 INPUT_COLUMNS = ['family', 'type', 'size', 'budget', 'memory', 'threshold']
 OUTPUT_COLUMNS = ['family', 'type', 'size', 'budget', 'memory', 'threshold',
                   'time', 'status', 'reward']

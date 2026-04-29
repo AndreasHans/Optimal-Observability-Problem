@@ -31,6 +31,8 @@ def init_variables(mdp:MDP, memory_budget: Int) -> None:
     states = list(mdp.states())
 
     for s in mdp.states():
+        if s in mdp.goals():
+            continue
         y_vars[s] = Bool(f'y_{s}')
 
     for s in mdp.states():
@@ -91,30 +93,43 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
 
     init_variables(mdp, memory_budget)
 
-    # Every initial state is reachable with the initial memory state
-    for s in initial_states:
-        add_constraint(solver, reachable(s, 0))
-
-    # A (state, memory) pair is reachable if we can reach it from some predecessor (state, memory) pair
-    for s in non_goal_states:
+    # A pair is reachable iff it is an initial pair or it has a reachable predecessor
+    # that can transition into the current state under the chosen action/memory update.
+    for s in states:
         for c in range(memory_budget):
-            for a in mdp.actions():
-                for c2 in range(memory_budget):
-                    for s2 in mdp.post(s, a):
-                        add_constraint(
-                            solver,
-                            Implies(
-                                And(reachable(s, c), y(s), theta(c, s, a), delta(c, s, c2)),
-                                reachable(s2, c2)
+
+            # Every initial state is reachable with the initial memory state
+            if s in initial_states and c == 0:
+                add_constraint(solver, reachable(s, c))
+                continue
+            
+            predecessor_terms = []
+
+            for s_prev in non_goal_states:
+                for a in mdp.actions():
+                    if mdp.transition(s_prev, a, s) <= 0:
+                        continue
+
+                    for c_prev in range(memory_budget):
+                        predecessor_terms.append(
+                            And(
+                                reachable(s_prev, c_prev),
+                                y(s_prev),
+                                theta(c_prev, s_prev, a),
+                                delta(c_prev, s_prev, c)
                             )
                         )
-                        add_constraint(
-                            solver,
-                            Implies(
-                                And(reachable(s, c), Not(y(s)), theta(c, bot, a), delta(c, bot, c2)),
-                                reachable(s2, c2)
+                        predecessor_terms.append(
+                            And(
+                                reachable(s_prev, c_prev),
+                                Not(y(s_prev)),
+                                theta(c_prev, bot, a),
+                                delta(c_prev, bot, c)
                             )
                         )
+
+            predecessor_reachability = Or(predecessor_terms) if predecessor_terms else BoolVal(False)
+            add_constraint(solver, reachable(s, c) == predecessor_reachability)
 
     #We cannot do better than the fully observable case
     for s in mdp.states():
@@ -127,14 +142,6 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
     if minimize_mode:
         solver.minimize(min_exp_rew)
     else:
-        # Fix pi for unreachable (s, c) pairs to a large value
-        # Upper bound on pi for reachable pairs: worst-case cost in the MDP
-        M = 9999
-        for s in mdp.states():
-            for c in range(memory_budget):
-                add_constraint(solver, Implies(Not(reachable(s, c)), pi(s, c) == M))
-                add_constraint(solver, Implies(reachable(s, c), pi(s, c) < M))
-
         threshold = Q(threshold_terms[0], threshold_terms[1]) if len(threshold_terms) > 1 else threshold_terms[0]
 
         # We want to check if the minimal expected cost is below some threshold
@@ -146,7 +153,7 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
     # Expected cost/reward equations
     for s in mdp.goals():
         for c in range(memory_budget):
-            add_constraint(solver, Implies(reachable(s, c), pi(s, c) == 0))
+            add_constraint(solver, pi(s, c) == 0)
 
     for s in non_goal_states:
         for c in range(memory_budget):
@@ -186,17 +193,19 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
     # Sensor budget constraint
     add_constraint(solver, PbEq([(y(s), 1) for s in non_goal_states], sensor_budget))
 
-    # Define used_memory_state(c) to be true iff a memory state c is reachable  
-    for c in range(memory_budget):
-        add_constraint(
-            solver,
-            used_memory_state(c) == Or([reachable(s, c) for s in states])
-        )
-
-    # Symmetry breaking: force memory states to be used in order
-    for c in range(1, memory_budget):
-        # A memory state cannot be used unless the previous one is used
-        add_constraint(solver, Implies(used_memory_state(c), used_memory_state(c - 1)))
+    # Use memory heuristic if there are multiple memory states to break symmetries and speed up solving
+    if memory_budget > 2:
+        # Define used_memory_state(c) to be true iff a memory state c is reachable  
+        for c in range(memory_budget):
+            add_constraint(
+                solver,
+                used_memory_state(c) == Or([reachable(s, c) for s in states])
+            )
+            
+        # Symmetry breaking: force memory states to be used in order
+        for c in range(1, memory_budget):
+            # A memory state cannot be used unless the previous one is used
+            add_constraint(solver, Implies(used_memory_state(c), used_memory_state(c - 1)))
 
     
     
@@ -205,6 +214,14 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
     result = solver.check()
     cpu_end = time.process_time()
     solve_time = cpu_end - cpu_start
+
+
+    if result == sat:
+        with open('output.log', 'w') as f:
+            for d in solver.model():
+                f.write(f"{d} = {solver.model()[d]}\n")
+
+
     return Z3Result(result, solver.model() if result == sat else None, solve_time)
 
 def all_equal_theta(memory, o, a):
