@@ -204,9 +204,9 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
                 #for each observation, ensure: for a given action, all strategies are equal
                  add_constraint(solver, Implies(y(o), all_equal_theta(memory_budget, o, a)) )
         
-        #for c2 in range(memory_budget):
+        for c2 in range(memory_budget):
             #Technically works, but errases all gaing from the theta. wTakes a horrendus time if done alone
-            #add_constraint(solver, Implies(y(o), all_equal_delta(c2, o, memory_budget)))
+            add_constraint(solver, Implies(y(o), all_equal_delta(c2, o, memory_budget)))
 
 
     cpu_start = time.process_time()

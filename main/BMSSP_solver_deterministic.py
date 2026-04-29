@@ -198,11 +198,20 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
         # A memory state cannot be used unless the previous one is used
         add_constraint(solver, Implies(used_memory_state(c), used_memory_state(c - 1)))
 
+    
+    
+
     cpu_start = time.process_time()
     result = solver.check()
     cpu_end = time.process_time()
     solve_time = cpu_end - cpu_start
     return Z3Result(result, solver.model() if result == sat else None, solve_time)
+
+def all_equal_theta(memory, o, a):
+    return And([theta(c,o,a) == theta(0,o,a) for c in range(1,memory)])
+
+def all_equal_delta(c2, o, mem):
+    return And([delta(0,o,c2) == delta(c,o,c2) for c in range(1,mem)])
 
 if __name__ == "__main__":
 

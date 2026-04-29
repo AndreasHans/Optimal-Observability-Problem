@@ -1,0 +1,31 @@
+family,type,size,budget,memory,threshold
+memory, maze, 9, 2, 4, <=213/20
+deterministic, maze, 9, 2, 4, <=213/20
+memory, maze, 9, 2, 4, <213/20
+deterministic, maze, 9, 2, 4, <213/20
+
+
+memory, grid, 9, 2, 2, <=37/4
+deterministic, grid, 9, 2, 2, <=37/4 
+memory, grid, 9, 2, 2, <37/4
+deterministic, grid, 9, 2, 2, <37/4 
+
+memory, grid, 9, 8, 2, <=81/10
+deterministic, grid, 9, 8, 2, <=81/10
+memory, grid, 9, 8, 2, <81/10
+deterministic, grid, 9, 8, 2, <81/10
+
+memory, line, 701, 1, 2, <= 450
+deterministic, line, 701, 1, 2, <= 450
+memory, line, 701, 1, 2, < 450
+deterministic, line, 701, 1, 2, < 450
+
+
+memory, line, 151, 1, 3, <=11249/150
+deterministic, line, 151, 1, 3, <=11249/150
+memory, line, 151, 1, 3, < 11249/150
+deterministic, line, 151, 1, 3, < 11249/150
+memory, line, 151, 1, 4, <= 151/2
+deterministic, line, 151, 1, 4, <= 151/2
+memory, line, 151, 1, 4, < 151/2
+deterministic, line, 151, 1, 4, < 151/2

@@ -22,6 +22,9 @@ from ParseModel import ParseModel
 
 import BMSSP_solver_deterministic
 import BMSSP_solver_randomized
+import BMSSP_deterministic_MemoryRestrict
+import BMSSP_det_forced_action
+import BMSSP_det_forced_restricted
 
 
 def build_mdp(mdp_type: str, size: int):
@@ -90,6 +93,12 @@ def main():
         solver_module = BMSSP_solver_deterministic
     elif family == 'randomized':
         solver_module = BMSSP_solver_randomized
+    elif family == 'memory':
+        solver_module = BMSSP_deterministic_MemoryRestrict
+    elif family == 'restricted':
+        solver_module = BMSSP_det_forced_restricted
+    elif family == 'forced':
+        solver_module = BMSSP_det_forced_action 
     else:
         raise ValueError(f"Unknown family: {args.family}")
 
