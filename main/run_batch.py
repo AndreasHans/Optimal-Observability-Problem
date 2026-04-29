@@ -21,7 +21,7 @@ TIMEOUT_SECONDS = 180  # 3 minutes per instance
 INPUT_COLUMNS = ['family', 'type', 'size', 'budget', 'memory', 'threshold']
 OUTPUT_COLUMNS = ['family', 'type', 'size', 'budget', 'memory', 'threshold',
                   'time', 'status', 'reward']
-VALID_FAMILIES = {'deterministic', 'randomized', 'memory','restricted', 'forced'}
+VALID_FAMILIES = {'deterministic', 'randomized', 'memory','restricted', 'forced', 'heuristic'}
 VALID_TYPES = {'line', 'grid', 'maze'}
 
 WORKER = Path(__file__).resolve().parent / '_run_one.py'
