@@ -54,6 +54,8 @@ def grid_center_n(n:int):
         row = s // n
         col = s % n
         mdp.set_optimal_cost(s, abs(n // 2 - row) + abs(n // 2 - col))
+    
+    mdp.set_type("gridC")
 
     return mdp
 
@@ -144,7 +146,8 @@ def maze(columns:int, rows:int):
                 else:
                     mdp.set_transition(s, a, s2, 1.0)
   
-   
+    mdp.set_type("maze")
+    mdp.set_size(columns)
    
     return mdp
 
@@ -188,7 +191,7 @@ def line_n(n:int):
                 else:
                     mdp.set_transition(s, a, s2, 1.0)
 
-
+    mdp.set_type("line")
     return mdp
 
 
@@ -246,5 +249,6 @@ def grid_corner_n(n:int):
                 else:
                     mdp.set_transition(s, a, s2, 1.0)
 
-
+    mdp.set_type("grid")
+    mdp.set_size(n)
     return mdp

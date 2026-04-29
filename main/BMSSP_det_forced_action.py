@@ -1,3 +1,4 @@
+from math import floor
 from typing import List, Optional
 
 from z3 import *
@@ -198,16 +199,34 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
         # A memory state cannot be used unless the previous one is used
         add_constraint(solver, Implies(used_memory_state(c), used_memory_state(c - 1)))
 
-    #ensures the strategy is the same if the location is know
-    for o in states:
-        for a in mdp.actions():
-                #for each observation, ensure: for a given action, all strategies are equal
-                 add_constraint(solver, Implies(y(o), all_equal_theta(memory_budget, o, a)) )
-        
-        #for c2 in range(memory_budget):
-            #Technically works, but errases all gaing from the theta. wTakes a horrendus time if done alone
-            #add_constraint(solver, Implies(y(o), all_equal_delta(c2, o, memory_budget)))
-
+    
+     #adds heuristics for specific problems
+    if mdp.type() == "line":
+        #for n in range(floor(mdp.initial_states_len()/2)):
+        for n in range(memory_budget):
+            
+            for c in range(memory_budget): 
+                add_constraint(solver, Implies(y(n), theta(c,n,"right") == True))
+    elif mdp.type() == "maze":
+        for n in range(floor( mdp.size() / 2)):
+            for c in range(memory_budget):
+                add_constraint(solver, Implies(y(n), theta(c,n,"right") == True))
+        for c in range(memory_budget):
+            add_constraint(solver, Implies(y(floor(mdp.size()/2)), theta(c,floor(mdp.size()/2),"down")== True))
+        for n in range(floor(mdp.size()/2)+1, mdp.size()):
+            for c in range(memory_budget):
+                add_constraint(solver, Implies(y(n), theta(c,n,"left")== True))
+    elif mdp.type() == "grid":
+        for z in range(1,mdp.size()+1):
+            for x in range(z,mdp.size()):
+                location = (z-1)*mdp.size() + x
+                for c in range(memory_budget):
+                    add_constraint(solver, Implies(y(location), theta(c, location,"down") == True))
+        for z in range(mdp.size()):
+            for x in range(z+1):
+                location = z * mdp.size() + x
+                for c in range(memory_budget):
+                    add_constraint(solver, Implies(y(location), theta(c,location,"right") == True))
 
     cpu_start = time.process_time()
     result = solver.check()

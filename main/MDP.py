@@ -9,6 +9,8 @@ class MDP:
         self._goal_states = _goals
         self._actions = _actions
         self._optimals = [0 for _ in range(_states)]
+        self._type = "fishsayce"
+        self._size = 0
         # p(s,a,s') = 0 for all s,a,s'
         self.transition_probabilities = {
             state: {
@@ -40,6 +42,9 @@ class MDP:
         for s in self._initial_states:
             yield s
 
+    def initial_states_len(self) -> int:
+        return len(self._initial_states)
+
     def goals(self) -> Iterable[int]:
         for g in self._goal_states:
             yield g
@@ -61,3 +66,15 @@ class MDP:
 
     def transition(self, state:int, action:str, state2:int) -> float:
         return self.transition_probabilities[state][action][state2]
+    
+        
+    def set_size(self, size: int):
+        self._size = size
+
+    def size(self) -> int:
+        return self._size
+    
+    def set_type(self, type: str):
+        self._type = type
+    def type(self) -> str:
+        return self._type
