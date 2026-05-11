@@ -192,7 +192,23 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
 
     # Sensor budget constraint
     add_constraint(solver, PbEq([(y(s), 1) for s in non_goal_states], sensor_budget))
-     
+
+    # Use memory heuristic if there are multiple memory states to break symmetries and speed up solving
+    if memory_budget > 2:
+        # Define used_memory_state(c) to be true iff a memory state c is reachable  
+        for c in range(memory_budget):
+            add_constraint(
+                solver,
+                used_memory_state(c) == Or([reachable(s, c) for s in states])
+            )
+            
+        # Symmetry breaking: force memory states to be used in order
+        for c in range(1, memory_budget):
+            # A memory state cannot be used unless the previous one is used
+            add_constraint(solver, Implies(used_memory_state(c), used_memory_state(c - 1)))
+
+    
+    
 
     cpu_start = time.process_time()
     result = solver.check()
