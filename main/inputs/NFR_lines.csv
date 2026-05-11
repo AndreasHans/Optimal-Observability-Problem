@@ -1,0 +1,46 @@
+family,type,size,budget,memory,threshold
+
+deterministic, line, 31, 2, 2,
+memory, line, 31, 2, 2,
+forced, line, 31, 2, 2,
+restricted, line, 31, 2, 2,
+
+deterministic, line, 31, 3, 2,
+memory, line, 31, 3, 2,
+forced, line, 31, 3, 2,
+restricted, line, 31, 3, 2,
+
+deterministic, line, 31, 4, 2,
+memory, line, 31, 4, 2,
+forced, line, 31, 4, 2,
+restricted, line, 31, 4, 2,
+
+deterministic, line, 31, 5, 2,
+memory, line, 31, 5, 2,
+forced, line, 31, 5, 2,
+restricted, line, 31, 5, 2,
+
+deterministic, line, 31, 6, 2,
+memory, line, 31, 6, 2,
+forced, line, 31,6, 2,
+restricted, line, 31, 6, 2,
+
+deterministic, line, 31, 7, 2,
+memory, line, 31, 7, 2,
+forced, line, 31, 7, 2,
+restricted, line, 31, 7, 2,
+
+deterministic, line, 31, 8, 2,
+memory, line, 31, 8, 2,
+forced, line, 31, 8, 2,
+restricted, line, 31, 8, 2,
+
+deterministic, line, 31, 9, 2,
+memory, line, 31, 9, 2,
+forced, line, 31, 9, 2,
+restricted, line, 31, 9, 2,
+
+deterministic, line, 31, 10, 2,
+memory, line, 31, 10, 2,
+forced, line, 31, 10, 2,
+restricted, line, 31, 10, 2,

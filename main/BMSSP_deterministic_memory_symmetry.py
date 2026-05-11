@@ -83,10 +83,8 @@ def add_constraint(solver: Solver, constraint):
 def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], memory_budget: int, strict_less: bool) -> Z3Result:
     # If threshold_terms is None/empty, run in minimization mode using Optimize();
     # otherwise run in threshold-check mode using Solver().
-    print("Adding constraints...")
     minimize_mode = not threshold_terms
     solver = Optimize() if minimize_mode else Solver()
-    #solver = Optimize()
 
     states = list(mdp.states())
     goals = set(mdp.goals())
@@ -194,49 +192,23 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
 
     # Sensor budget constraint
     add_constraint(solver, PbEq([(y(s), 1) for s in non_goal_states], sensor_budget))
-     
 
-    """
-    # Soft contraints
-    n = mdp.size
-    if mdp.variant == "line":
-        ls = [math.floor(i*(n-1)/(2*sensor_budget)) for i in range(sensor_budget)]
-        for s in ls:
-            solver.add(y(s))
-
-        solver.add(theta(0, bot, 'left'))
-        solver.add(theta(1, bot, 'right'))
-        solver.add(delta(0, bot, 0))
-        solver.add(delta(1, bot, 1))
-
-        for s in ls:
-            solver.add(theta(0, s, 'right'))
-            solver.add(delta(0, s, 1))
-
-            solver.add(theta(1, s, 'right'))
-
-            solver.add(delta(1, s, 1))
-
-    if mdp.variant == "grid":
-
+    # Use memory heuristic if there are multiple memory states to break symmetries and speed up solving
+    if memory_budget > 2:
+        # Define used_memory_state(c) to be true iff a memory state c is reachable  
         for c in range(memory_budget):
-            solver.add(Or(theta(c, bot, 'right'), theta(c, bot, 'down')))
-
-        for s in initial_states:
-            row = s // n
-            col = s % n
-
-        
-
+            add_constraint(
+                solver,
+                used_memory_state(c) == Or([reachable(s, c) for s in states])
+            )
             
-            if not(row == n - 1 or col == n - 1):
-                solver.add(Not(y(s)))
+        # Symmetry breaking: force memory states to be used in order
+        for c in range(1, memory_budget):
+            # A memory state cannot be used unless the previous one is used
+            add_constraint(solver, Implies(used_memory_state(c), used_memory_state(c - 1)))
 
-    if mdp.variant == "maze":
-    """
-
-
-    print("Running solver...")
+    
+    
 
     cpu_start = time.process_time()
     result = solver.check()
@@ -283,13 +255,13 @@ if __name__ == "__main__":
         raise ValueError(f"Unknown MDP type: {type}")
 
     print("Created MDP!")
+    print("Running solver...")
     z3result = main(mdp, sensor_budget, threshold_terms, memory_budget, strict_less)
 
     if z3result.result == sat:
         print("Success")
         bmssp_result = ParseModel.parse_model(z3result)
         bmssp_result.print()
-        print("Time taken: ", z3result.solve_time, " seconds")
 
     elif z3result.result == unsat:
         print('No solution')

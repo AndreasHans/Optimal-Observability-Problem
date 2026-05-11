@@ -1,0 +1,40 @@
+family,type,size,budget,memory,threshold
+deterministic, maze, 13, 2, 4,
+memory, maze, 13, 2, 4,
+forced, maze, 13, 2, 4,
+restricted, maze, 13, 2, 4,
+
+deterministic, maze, 7, 4, 4,
+memory, maze, 7, 4, 4,
+forced, maze, 7, 4, 4,
+restricted, maze, 7, 4, 4,
+
+deterministic, maze, 7, 3, 4,
+memory, maze, 7, 3, 4,
+forced, maze, 7, 3, 4,
+restricted, maze, 7, 3, 4,
+
+deterministic, maze, 7, 2, 4,
+memory, maze, 7, 2, 4,
+forced, maze, 7, 2, 4,
+restricted, maze, 7, 2, 4,
+
+deterministic, maze, 7, 1, 4,
+memory, maze, 7, 1, 4,
+forced, maze, 7, 1, 4,
+restricted, maze, 7, 1, 4,
+
+deterministic, maze, 7, 2, 5,
+memory, maze, 7, 2, 5,
+forced, maze, 7, 2, 5,
+restricted, maze, 7, 2, 5,
+
+deterministic, maze, 7, 2, 3,
+memory, maze, 7, 2, 3,
+forced, maze, 7, 2, 3,
+restricted, maze, 7, 2, 3,
+
+deterministic, maze, 7, 2, 2,
+memory, maze, 7, 2, 2,
+forced, maze, 7, 2, 2,
+restricted, maze, 7, 2, 2,

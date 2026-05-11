@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from z3 import *
 from MDP import MDP
@@ -15,11 +15,10 @@ delta_vars = dict()
 pi_vars = dict()
 y_vars = dict()
 reachable_vars = dict()
+used_memory_state_vars = dict()
 bot = 'bot'
 
 min_exp_rew = Real('min_exp_rew')
-
-#attempts to improve performance by restraining strategies to not care about what controller they have when in observed states
 
 def init_variables(mdp:MDP, memory_budget: Int) -> None:
     y_vars.clear()
@@ -27,6 +26,7 @@ def init_variables(mdp:MDP, memory_budget: Int) -> None:
     theta_vars.clear()
     delta_vars.clear()
     reachable_vars.clear()
+    used_memory_state_vars.clear()
 
     states = list(mdp.states())
 
@@ -53,6 +53,8 @@ def init_variables(mdp:MDP, memory_budget: Int) -> None:
         for c2 in range(memory_budget):
             delta_vars[c,bot,c2] = Bool(f'delta_{c}_{bot}_{c2}')
 
+    for c in range(memory_budget):
+        used_memory_state_vars[c] = Bool(f'used_mem_{c}')
 
 def y(s:int):
     return y_vars[s]
@@ -69,13 +71,19 @@ def delta(c:int, o:int, c2:int):
 def reachable(s:int, c:int):
     return reachable_vars[s,c]
 
+def used_memory_state(c:int):
+    return used_memory_state_vars[c]
+
 def add_constraint(solver: Solver, constraint):
     #print(constraint)
     solver.add(constraint)
 
-def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget: int, strict_less: bool) -> Z3Result:
-    solver = Solver()
-    
+def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], memory_budget: int, strict_less: bool) -> Z3Result:
+    # If threshold_terms is None/empty, run in minimization mode using Optimize();
+    # otherwise run in threshold-check mode using Solver().
+    minimize_mode = not threshold_terms
+    solver = Optimize() if minimize_mode else Solver()
+
     states = list(mdp.states())
     goals = set(mdp.goals())
     non_goal_states = [s for s in states if s not in goals]
@@ -113,16 +121,27 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
         for c in range(memory_budget):
             add_constraint(solver, pi(s, c) >= mdp.optimal_cost(s))
 
-    threshold = Q(threshold_terms[0], threshold_terms[1]) if len(threshold_terms) > 1 else threshold_terms[0]
-
-    # We want to check if the minimal expected cost is below some threshold
-    if strict_less:
-        add_constraint(solver, Sum([pi(s, 0) for s in initial_states]) *  Q(1, len(initial_states)) < threshold)
-    else:
-        add_constraint(solver, Sum([pi(s, 0) for s in initial_states]) *  Q(1, len(initial_states)) <= threshold)
-
     # Compute the minimum expected reward
     add_constraint(solver, min_exp_rew == Sum([pi(s, 0) for s in initial_states]) *  Q(1, len(initial_states)))
+
+    if minimize_mode:
+        solver.minimize(min_exp_rew)
+    else:
+        # Fix pi for unreachable (s, c) pairs to a large value
+        # Upper bound on pi for reachable pairs: worst-case cost in the MDP
+        M = 9999
+        for s in mdp.states():
+            for c in range(memory_budget):
+                add_constraint(solver, Implies(Not(reachable(s, c)), pi(s, c) == M))
+                add_constraint(solver, Implies(reachable(s, c), pi(s, c) < M))
+
+        threshold = Q(threshold_terms[0], threshold_terms[1]) if len(threshold_terms) > 1 else threshold_terms[0]
+
+        # We want to check if the minimal expected cost is below some threshold
+        if strict_less:
+            add_constraint(solver, min_exp_rew < threshold)
+        else:
+            add_constraint(solver, min_exp_rew <= threshold)
 
     # Expected cost/reward equations
     for s in mdp.goals():
@@ -131,24 +150,28 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
 
     for s in non_goal_states:
         for c in range(memory_budget):
-                y_terms = []
-                not_y_terms = []
-                for a in mdp.actions():
-                    for c2 in range(memory_budget):
-                        succ_cost = Sum([
-                            mdp.transition(s, a, s2) * pi(s2, c2)
-                            for s2 in mdp.post(s, a)
-                        ])
-                        y_terms.append(If(And(theta(c, s, a), delta(c, s, c2)), succ_cost, RealVal(0)))
-                        not_y_terms.append(If(And(theta(c, bot, a), delta(c, bot, c2)), succ_cost, RealVal(0)))
-
-                eq1 = Sum(y_terms) if y_terms else RealVal(0)
-                eq2 = Sum(not_y_terms) if not_y_terms else RealVal(0)
-
-                add_constraint(
-                    solver,
-                    Implies(reachable(s, c), pi(s, c) == mdp.reward(s) + If(y(s), eq1, eq2))
-                )
+            for a in mdp.actions():
+                for c2 in range(memory_budget):
+                    cost = mdp.reward(s) + Sum([
+                        mdp.transition(s, a, s2) * pi(s2, c2)
+                        for s2 in mdp.post(s, a)
+                    ])
+                    # Observed case: y(s) true, observation = s
+                    add_constraint(
+                        solver,
+                        Implies(
+                            And(reachable(s, c), y(s), theta(c, s, a), delta(c, s, c2)),
+                            pi(s, c) == cost
+                        )
+                    )
+                    # Unobserved case: y(s) false, observation = bot
+                    add_constraint(
+                        solver,
+                        Implies(
+                            And(reachable(s, c), Not(y(s)), theta(c, bot, a), delta(c, bot, c2)),
+                            pi(s, c) == cost
+                        )
+                    )
 
     for c in range(memory_budget):
         for o in states:
@@ -160,19 +183,31 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
             add_constraint(solver, PbEq([(delta(c,o,c2), 1) for c2 in range(memory_budget)], 1))
         add_constraint(solver, PbEq([(delta(c,bot,c2), 1) for c2 in range(memory_budget)], 1))
 
-      #ensures the strategy is the same if the location is know
-    
-    
+    # Sensor budget constraint
+    add_constraint(solver, PbEq([(y(s), 1) for s in non_goal_states], sensor_budget))
+
+    # Define used_memory_state(c) to be true iff a memory state c is reachable  
+    for c in range(memory_budget):
+        add_constraint(
+            solver,
+            used_memory_state(c) == Or([reachable(s, c) for s in states])
+        )
+
+    # Symmetry breaking: force memory states to be used in order
+    for c in range(1, memory_budget):
+        # A memory state cannot be used unless the previous one is used
+        add_constraint(solver, Implies(used_memory_state(c), used_memory_state(c - 1)))
+
     #ensures the strategy is the same if the location is know
     for o in states:
         for a in mdp.actions():
                 #for each observation, ensure: for a given action, all strategies are equal
                  add_constraint(solver, Implies(y(o), all_equal_theta(memory_budget, o, a)) )
+        
+        for c2 in range(memory_budget):
+            #Technically works, but errases all gaing from the theta. wTakes a horrendus time if done alone
+            add_constraint(solver, Implies(y(o), all_equal_delta(c2, o, memory_budget)))
 
-
-
-    # Sensor budget constraint
-    add_constraint(solver, PbEq([(y(s), 1) for s in non_goal_states], sensor_budget))
 
     cpu_start = time.process_time()
     result = solver.check()
@@ -181,7 +216,10 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int], memory_budget
     return Z3Result(result, solver.model() if result == sat else None, solve_time)
 
 def all_equal_theta(memory, o, a):
-    return And([theta(c,o,a) == theta(0,o,a)for c in range(1,memory)])
+    return And([theta(c,o,a) == theta(0,o,a) for c in range(1,memory)])
+
+def all_equal_delta(c2, o, mem):
+    return And([delta(0,o,c2) == delta(c,o,c2) for c in range(1,mem)])
 
 if __name__ == "__main__":
 
@@ -190,7 +228,12 @@ if __name__ == "__main__":
     type = sys.argv[1]
     n = int(sys.argv[2])
     sensor_budget = int(sys.argv[3])
-    threshold_terms = tuple(int(x) for x in sys.argv[4][1:-1].split(','))
+    # Threshold arg: pass '[]' or 'none' to run in minimization mode.
+    threshold_arg = sys.argv[4]
+    if threshold_arg.lower() in ('none', '[]', ''):
+        threshold_terms = None
+    else:
+        threshold_terms = tuple(int(x) for x in threshold_arg[1:-1].split(','))
     memory_budget = int(sys.argv[5])
     strict_less = sys.argv[6].lower() == 'true' if len(sys.argv) > 6 else True
 
