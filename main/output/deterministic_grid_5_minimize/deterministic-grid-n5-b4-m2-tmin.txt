@@ -1,0 +1,51 @@
+Solve time: 0.3125 seconds
+min_exp_rew = 25/6
+y(9)
+y(14)
+y(4)
+y(19)
+pi(10, 0) = 6
+pi(16, 0) = 4
+pi(3, 0) = 5
+pi(1, 0) = 7
+pi(12, 0) = 4
+pi(4, 0) = 4
+pi(6, 0) = 6
+pi(5, 0) = 7
+pi(7, 0) = 5
+pi(14, 0) = 2
+pi(23, 0) = 1
+pi(18, 0) = 2
+pi(22, 0) = 2
+pi(8, 0) = 4
+pi(13, 0) = 3
+pi(15, 0) = 5
+pi(11, 0) = 5
+pi(9, 0) = 3
+pi(17, 0) = 3
+pi(20, 0) = 4
+pi(2, 0) = 6
+pi(21, 0) = 3
+pi(19, 0) = 1
+pi(0, 0) = 8
+pi(24, 0) = 0
+theta(0, 19, down)
+theta(0, 4, down)
+theta(0, bot, right)
+theta(1, 14, up)
+theta(1, 19, right)
+theta(1, 4, down)
+theta(1, 9, up)
+theta(0, 14, down)
+theta(0, 9, down)
+theta(1, bot, up)
+delta(1, 14, 1)
+delta(0, 4, 0)
+delta(0, 9, 0)
+delta(1, 9, 0)
+delta(0, 19, 1)
+delta(1, bot, 0)
+delta(1, 4, 0)
+delta(1, 19, 0)
+delta(0, bot, 0)
+delta(0, 14, 0)

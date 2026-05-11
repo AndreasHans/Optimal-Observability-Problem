@@ -1,0 +1,88 @@
+Solve time: 33.015625 seconds
+min_exp_rew = 4
+y(9)
+y(14)
+y(13)
+y(11)
+y(8)
+y(12)
+y(10)
+pi(10, 0) = 3
+pi(3, 0) = 4
+pi(1, 0) = 6
+pi(12, 0) = 5
+pi(4, 0) = 3
+pi(6, 0) = 1
+pi(5, 0) = 2
+pi(14, 0) = 7
+pi(8, 0) = 1
+pi(13, 0) = 6
+pi(11, 0) = 4
+pi(9, 0) = 2
+pi(2, 0) = 5
+pi(7, 0) = 0
+pi(0, 0) = 7
+theta(1, bot, right)
+theta(3, 8, right)
+theta(0, 14, left)
+theta(1, 9, left)
+theta(3, bot, right)
+theta(0, bot, right)
+theta(0, 8, left)
+theta(1, 8, left)
+theta(2, 9, left)
+theta(1, 10, right)
+theta(1, 12, left)
+theta(1, 11, left)
+theta(3, 14, right)
+theta(3, 10, left)
+theta(0, 10, left)
+theta(0, 12, left)
+theta(0, 9, left)
+theta(0, 11, left)
+theta(3, 9, left)
+theta(1, 14, left)
+theta(2, 8, left)
+theta(2, 13, left)
+theta(3, 11, left)
+theta(2, bot, right)
+theta(1, 13, left)
+theta(2, 14, left)
+theta(2, 12, left)
+theta(2, 11, left)
+theta(3, 12, left)
+theta(0, 13, left)
+theta(3, 13, right)
+theta(2, 10, left)
+delta(1, 13, 3)
+delta(3, 12, 0)
+delta(3, 10, 1)
+delta(2, 9, 0)
+delta(2, 8, 0)
+delta(3, bot, 0)
+delta(2, 11, 2)
+delta(2, 13, 0)
+delta(1, 11, 0)
+delta(1, 9, 0)
+delta(0, 11, 3)
+delta(0, 8, 0)
+delta(3, 14, 0)
+delta(1, bot, 0)
+delta(1, 10, 0)
+delta(0, 9, 2)
+delta(1, 14, 0)
+delta(2, 12, 2)
+delta(3, 13, 0)
+delta(2, bot, 0)
+delta(3, 8, 0)
+delta(0, bot, 0)
+delta(0, 13, 2)
+delta(3, 11, 0)
+delta(1, 12, 0)
+delta(0, 14, 0)
+delta(0, 12, 2)
+delta(2, 14, 0)
+delta(3, 9, 0)
+delta(0, 10, 0)
+delta(1, 8, 0)
+delta(2, 10, 1)

@@ -1,0 +1,35 @@
+Solve time: 39.421875 seconds
+min_exp_rew = 242/15
+y(6)
+pi(10, 0) = 15
+pi(3, 0) = 15
+pi(1, 0) = 19
+pi(4, 0) = 13
+pi(6, 0) = 9
+pi(5, 0) = 11
+pi(7, 0) = 21
+pi(14, 0) = 12
+pi(8, 0) = 23
+pi(13, 0) = 10
+pi(15, 0) = 14
+pi(11, 0) = 17
+pi(9, 0) = 25
+pi(2, 0) = 17
+pi(0, 0) = 21
+pi(12, 0) = 0
+theta(3, bot, left)
+theta(2, 6, left)
+theta(3, 6, right)
+theta(0, 6, left)
+theta(2, bot, right)
+theta(1, bot, down)
+theta(1, 6, right)
+theta(0, bot, up)
+delta(3, bot, 1)
+delta(0, bot, 2)
+delta(2, 6, 3)
+delta(1, bot, 3)
+delta(1, 6, 0)
+delta(0, 6, 3)
+delta(3, 6, 0)
+delta(2, bot, 0)
