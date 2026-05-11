@@ -97,7 +97,7 @@ def main():
     elif family == 'randomized':
         solver_module = BMSSP_solver_randomized
     elif family == 'symmetry':#memory symmetry heurisitc.
-        solver_module == BMSSP_deterministic_memory_symmetry
+        solver_module = BMSSP_deterministic_memory_symmetry
     elif family == 'memory':#reduced memory under observation heuristic
         solver_module = BMSSP_deterministic_MemoryRestrict
     elif family == 'restricted': #reduced memory under observation and optimal action heuristic
