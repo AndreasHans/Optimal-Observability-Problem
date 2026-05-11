@@ -22,10 +22,12 @@ from ParseModel import ParseModel
 
 import BMSSP_solver_deterministic
 import BMSSP_solver_randomized
+import BMSSP_deterministic_memory_symmetry
 import BMSSP_deterministic_MemoryRestrict
 import BMSSP_det_forced_action
 import BMSSP_det_forced_restricted
 import BMSSP_deterministic_W_Heuristics
+
 
 
 def build_mdp(mdp_type: str, size: int):
@@ -94,13 +96,15 @@ def main():
         solver_module = BMSSP_solver_deterministic
     elif family == 'randomized':
         solver_module = BMSSP_solver_randomized
+    elif family == 'symmetry':#memory symmetry heurisitc.
+        solver_module == BMSSP_deterministic_memory_symmetry
     elif family == 'memory':#reduced memory under observation heuristic
         solver_module = BMSSP_deterministic_MemoryRestrict
     elif family == 'restricted': #reduced memory under observation and optimal action heuristic
         solver_module = BMSSP_det_forced_restricted
     elif family == 'forced': #optimal action heuristic
         solver_module = BMSSP_det_forced_action 
-    elif family == 'heuristic': #use of 
+    elif family == 'heuristic': #use of the results of the heuristiscs
         solver_module = BMSSP_deterministic_W_Heuristics
     else:
         raise ValueError(f"Unknown family: {args.family}")
