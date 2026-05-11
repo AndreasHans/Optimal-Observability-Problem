@@ -3,7 +3,9 @@ from typing import Iterable, List
 
 class MDP:
 
-    def __init__(self, _states:int, _initial_states:List[int], _goals:List[int], _actions:List[str]):
+    def __init__(self, variant: str, size: int, _states:int, _initial_states:List[int], _goals:List[int], _actions:List[str]):
+        self.variant = variant
+        self.size = size
         self._states = _states
         self._initial_states = _initial_states
         self._goal_states = _goals

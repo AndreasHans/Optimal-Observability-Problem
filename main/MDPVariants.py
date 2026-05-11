@@ -9,7 +9,7 @@ def grid_center_n(n:int):
     
     goal = n * n // 2 
 
-    mdp = MDP(_states=n*n, _initial_states=[i for i in range(n*n) if i != goal], _goals=[goal], _actions=["left", "right", "up", "down"])
+    mdp = MDP(variant = "grid", size = n, _states=n*n, _initial_states=[i for i in range(n*n) if i != goal], _goals=[goal], _actions=["left", "right", "up", "down"])
 
     for s in mdp.states():
         mdp.set_reward(s, 1.0)
@@ -68,7 +68,7 @@ def maze(columns:int, rows:int):
     goal = num_states - rows - 1
     mid = (columns - 1) // 2
 
-    mdp = MDP(_states=num_states, _initial_states=[s for s in range(num_states) if (s != goal)], _goals=[goal], _actions=["left", "right", "up", "down"])
+    mdp = MDP(variant = "maze", size = columns, _states=num_states, _initial_states=[s for s in range(num_states) if (s != goal)], _goals=[goal], _actions=["left", "right", "up", "down"])
 
     def set_vertical_leg_transitions(start:int, up_target:int):
         end = start + rows
@@ -157,7 +157,7 @@ def line_n(n:int):
         raise ValueError("n must be odd")
     print(f"Creating line MDP with {n} states")
 
-    mdp = MDP(_states=n, _initial_states=[i for i in range(n) if i != n//2 ], _goals=[n//2], _actions=["left", "right"])
+    mdp = MDP(variant = "line", size = n, _states=n, _initial_states=[i for i in range(n) if i != n//2 ], _goals=[n//2], _actions=["left", "right"])
 
     for s in mdp.states():
         if s == 0:
@@ -201,7 +201,7 @@ def grid_corner_n(n:int):
     
     goal = n*n - 1
 
-    mdp = MDP(_states=n*n, _initial_states=[i for i in range(n*n) if i != goal], _goals=[goal], _actions=["left", "right", "up", "down"])
+    mdp = MDP(variant = "grid", size = n, _states=n*n, _initial_states=[i for i in range(n*n) if i != goal], _goals=[goal], _actions=["left", "right", "up", "down"])
 
     for s in mdp.states():
         mdp.set_reward(s, 1.0)
