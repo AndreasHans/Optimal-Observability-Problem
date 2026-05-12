@@ -26,8 +26,7 @@ import BMSSP_deterministic_memory_symmetry
 import BMSSP_deterministic_MemoryRestrict
 import BMSSP_det_forced_action
 import BMSSP_det_forced_restricted
-import BMSSP_deterministic_W_Heuristics
-
+import BMSSP_deterministic_general_heuristics
 
 
 def build_mdp(mdp_type: str, size: int):
@@ -104,8 +103,8 @@ def main():
         solver_module = BMSSP_det_forced_restricted
     elif family == 'forced': #optimal action heuristic
         solver_module = BMSSP_det_forced_action 
-    elif family == 'heuristic': #use of the results of the heuristiscs
-        solver_module = BMSSP_deterministic_W_Heuristics
+    elif family == 'general heuristics': #use of the results of the heuristiscs
+        solver_module = BMSSP_deterministic_general_heuristics
     else:
         raise ValueError(f"Unknown family: {args.family}")
 

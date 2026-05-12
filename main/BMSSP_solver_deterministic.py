@@ -194,46 +194,6 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
 
     # Sensor budget constraint
     add_constraint(solver, PbEq([(y(s), 1) for s in non_goal_states], sensor_budget))
-     
-
-    """
-    # Soft contraints
-    n = mdp.size
-    if mdp.variant == "line":
-        ls = [math.floor(i*(n-1)/(2*sensor_budget)) for i in range(sensor_budget)]
-        for s in ls:
-            solver.add(y(s))
-
-        solver.add(theta(0, bot, 'left'))
-        solver.add(theta(1, bot, 'right'))
-        solver.add(delta(0, bot, 0))
-        solver.add(delta(1, bot, 1))
-
-        for s in ls:
-            solver.add(theta(0, s, 'right'))
-            solver.add(delta(0, s, 1))
-
-            solver.add(theta(1, s, 'right'))
-
-            solver.add(delta(1, s, 1))
-
-    if mdp.variant == "grid":
-
-        for c in range(memory_budget):
-            solver.add(Or(theta(c, bot, 'right'), theta(c, bot, 'down')))
-
-        for s in initial_states:
-            row = s // n
-            col = s % n
-
-        
-
-            
-            if not(row == n - 1 or col == n - 1):
-                solver.add(Not(y(s)))
-
-    if mdp.variant == "maze":
-    """
 
 
     print("Running solver...")
