@@ -17,6 +17,7 @@ import traceback
 
 from z3 import sat, unsat
 
+import BMSSP_deterministic_general_heuristics_with_world
 from MDPVariants import grid_corner_n, line_n, maze_n
 from ParseModel import ParseModel
 
@@ -105,6 +106,8 @@ def main():
         solver_module = BMSSP_det_forced_action 
     elif family == 'general heuristics': #use of the results of the heuristiscs
         solver_module = BMSSP_deterministic_general_heuristics
+    elif family == 'general heuristics and world': #use of the results of the heuristiscs
+        solver_module = BMSSP_deterministic_general_heuristics_with_world
     else:
         raise ValueError(f"Unknown family: {args.family}")
 
