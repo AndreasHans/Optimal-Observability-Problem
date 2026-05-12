@@ -17,7 +17,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-TIMEOUT_SECONDS = 180  # 3 minutes per instance
+RERUNS = 1
+TIMEOUT_SECONDS = 120  # 2 minutes per instance
 INPUT_COLUMNS = ['family', 'type', 'size', 'budget', 'memory', 'threshold']
 OUTPUT_COLUMNS = ['family', 'type', 'size', 'budget', 'memory', 'threshold',
                   'time', 'status', 'reward']
@@ -234,6 +235,17 @@ def main():
             )
 
             result = run_one(cfg, run_dir, input_stem)
+
+            time = result['time']
+            if result['status'] == 'sat':
+                timeCollector = [float(result['time'])]
+                for x in range(1,RERUNS):
+                    print("run: ",x+1)
+                    temp = run_one(cfg, run_dir, input_stem)
+                    timeCollector.append(float(temp['time']))
+                time = sum(timeCollector) / len(timeCollector)
+
+
             counts[result['status']] = counts.get(result['status'], 0) + 1
 
             writer.writerow({
@@ -243,7 +255,7 @@ def main():
                 'budget': cfg.budget,
                 'memory': cfg.memory,
                 'threshold': cfg.threshold_raw,
-                'time': result['time'],
+                'time': time,
                 'status': result['status'],
                 'reward': result['reward'],
             })
