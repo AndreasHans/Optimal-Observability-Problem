@@ -5,14 +5,13 @@ class MDP:
 
     def __init__(self, variant: str, size: int, _states:int, _initial_states:List[int], _goals:List[int], _actions:List[str]):
         self.variant = variant
-        self.size = size
         self._states = _states
         self._initial_states = _initial_states
         self._goal_states = _goals
         self._actions = _actions
         self._optimals = [0 for _ in range(_states)]
         self._type = "fishsayce"
-        self._size = 0
+        self._size = size
         # p(s,a,s') = 0 for all s,a,s'
         self.transition_probabilities = {
             state: {
@@ -68,7 +67,6 @@ class MDP:
 
     def transition(self, state:int, action:str, state2:int) -> float:
         return self.transition_probabilities[state][action][state2]
-    
         
     def set_size(self, size: int):
         self._size = size
@@ -78,5 +76,6 @@ class MDP:
     
     def set_type(self, type: str):
         self._type = type
+
     def type(self) -> str:
         return self._type

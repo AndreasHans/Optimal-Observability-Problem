@@ -10,6 +10,7 @@ import sys
 from Z3Result import Z3Result
 from BMSSPResult import BMSSPResult
 from ParseModel import ParseModel
+from WorldSpecificHeuristics import add_trend_1, add_trend_2,add_trend_6, add_trend_9
 
 theta_vars = dict()
 delta_vars = dict()
@@ -79,11 +80,89 @@ def add_constraint(solver: Solver, constraint):
     #print(constraint)
     solver.add(constraint)
 
+def add_memory_symmetry_heuristic(solver, states, memory_budget):
+    # Define used_memory_state(c) to be true iff a memory state c is reachable  
+    for c in range(memory_budget):
+        add_constraint(
+            solver,
+            used_memory_state(c) == Or([reachable(s, c) for s in states])
+        )
+
+    # Symmetry breaking: force memory states to be used in order
+    for c in range(1, memory_budget):
+        # A memory state cannot be used unless the previous one is used
+        add_constraint(solver, Implies(used_memory_state(c), used_memory_state(c - 1)))
+
+def add_general_heuristics(solver, mdp, memory_budget, states):
+    #adds heuristics for specific problems
+    if mdp.type() == "line":
+        for n in range(memory_budget):
+            for c in range(memory_budget): 
+                add_constraint(solver, Implies(y(n), theta(c,n,"right") == True))
+    elif mdp.type() == "maze":
+        for n in range(floor( mdp.size() / 2)):
+            for c in range(memory_budget):
+                add_constraint(solver, Implies(y(n), theta(c,n,"right") == True))
+        for c in range(memory_budget):
+            add_constraint(solver, Implies(y(floor(mdp.size()/2)), theta(c,floor(mdp.size()/2),"down")== True))
+        for n in range(floor(mdp.size()/2)+1, mdp.size()):
+            for c in range(memory_budget):
+                add_constraint(solver, Implies(y(n), theta(c,n,"left")== True))
+    elif mdp.type() == "grid":
+        #ensures the strategy is the same if the location is know
+        for o in states:
+            for a in mdp.actions():
+                #for each observation, ensure: for a given action, all strategies are equal
+                 add_constraint(solver, Implies(y(o), all_equal_theta(memory_budget, o, a)) )
+        
+        for c2 in range(memory_budget):
+            #Technically works, but errases all gaing from the theta. wTakes a horrendus time if done alone
+            add_constraint(solver, Implies(y(o), all_equal_delta(c2, o, memory_budget)))
+        for z in range(1,mdp.size()+1):
+            for x in range(z,mdp.size()):
+                location = (z-1)*mdp.size() + x
+                for c in range(memory_budget):
+                    add_constraint(solver, Implies(y(location), theta(c, location,"down") == True))
+        for z in range(mdp.size()):
+            for x in range(z+1):
+                location = z * mdp.size() + x
+                for c in range(memory_budget):
+                    add_constraint(solver, Implies(y(location), theta(c,location,"right") == True))
+
+
 def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], memory_budget: int, strict_less: bool) -> Z3Result:
     # If threshold_terms is None/empty, run in minimization mode using Optimize();
     # otherwise run in threshold-check mode using Solver().
+    print("Adding constraints...")
     minimize_mode = not threshold_terms
     solver = Optimize() if minimize_mode else Solver()
+
+    # Trend 3
+    if mdp.type() == "line" and sensor_budget >= 2 and memory_budget >= 2:
+        memory_budget = 2
+    
+    # Theorem 5        
+    if mdp.type() == "line" and sensor_budget >= floor(n/2):
+        memory_budget = 1
+
+    #Trend 5
+    if mdp.type() == "grid" and memory_budget >= 2:
+        memory_budget = 2
+
+    #Trend 4
+    if mdp.type() == "grid" and sensor_budget >= n-1:
+        memory_budget = 1
+
+    #Trend 8
+    if mdp.type() == "maze" and sensor_budget >= 1 and memory_budget >= 4:
+        memory_budget = 4
+
+    #Trend 7
+    if mdp.type() == "maze" and sensor_budget >= floor(3*n/2)-1:
+        memory_budget = 1
+
+
+    print("Updated memory budget: ", memory_budget)
 
     states = list(mdp.states())
     goals = set(mdp.goals())
@@ -187,54 +266,18 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
     # Sensor budget constraint
     add_constraint(solver, PbEq([(y(s), 1) for s in non_goal_states], sensor_budget))
 
-    # Define used_memory_state(c) to be true iff a memory state c is reachable  
-    for c in range(memory_budget):
-        add_constraint(
-            solver,
-            used_memory_state(c) == Or([reachable(s, c) for s in states])
-        )
+    # Add general heuristics (e.g. symmetry breaking)
+    add_memory_symmetry_heuristic(solver, states, memory_budget)
+    add_general_heuristics(solver, mdp, memory_budget, states)
 
-    # Symmetry breaking: force memory states to be used in order
-    for c in range(1, memory_budget):
-        # A memory state cannot be used unless the previous one is used
-        add_constraint(solver, Implies(used_memory_state(c), used_memory_state(c - 1)))
+    # add world specific heuristics (e.g. for line, grid, maze worlds)
+    add_trend_1(solver, mdp, memory_budget, sensor_budget, add_constraint, y, theta, delta, states, n, bot)
+    add_trend_2(solver, mdp, memory_budget, sensor_budget, add_constraint, y, theta, delta, states, n, bot)
+    add_trend_6(solver, mdp, memory_budget, sensor_budget, add_constraint, y, theta, delta, states, n, bot)
+    add_trend_9(solver, mdp, memory_budget, sensor_budget, add_constraint, y, theta, delta, states, n, bot)
 
-    #adds heuristics for specific problems
-    if mdp.type() == "line":
-        for n in range(memory_budget):
-            for c in range(memory_budget): 
-                add_constraint(solver, Implies(y(n), theta(c,n,"right") == True))
-    elif mdp.type() == "maze":
-        for n in range(floor( mdp.size() / 2)):
-            for c in range(memory_budget):
-                add_constraint(solver, Implies(y(n), theta(c,n,"right") == True))
-        for c in range(memory_budget):
-            add_constraint(solver, Implies(y(floor(mdp.size()/2)), theta(c,floor(mdp.size()/2),"down")== True))
-        for n in range(floor(mdp.size()/2)+1, mdp.size()):
-            for c in range(memory_budget):
-                add_constraint(solver, Implies(y(n), theta(c,n,"left")== True))
-    elif mdp.type() == "grid":
-        #ensures the strategy is the same if the location is know
-        for o in states:
-            for a in mdp.actions():
-                #for each observation, ensure: for a given action, all strategies are equal
-                 add_constraint(solver, Implies(y(o), all_equal_theta(memory_budget, o, a)) )
-        
-        for c2 in range(memory_budget):
-            #Technically works, but errases all gaing from the theta. wTakes a horrendus time if done alone
-            add_constraint(solver, Implies(y(o), all_equal_delta(c2, o, memory_budget)))
 
-        for z in range(1,mdp.size()+1):
-            for x in range(z,mdp.size()):
-                location = (z-1)*mdp.size() + x
-                for c in range(memory_budget):
-                    add_constraint(solver, Implies(y(location), theta(c, location,"down") == True))
-        for z in range(mdp.size()):
-            for x in range(z+1):
-                location = z * mdp.size() + x
-                for c in range(memory_budget):
-                    add_constraint(solver, Implies(y(location), theta(c,location,"right") == True))
-
+    print("Running solver...")
     
     cpu_start = time.process_time()
     result = solver.check()
@@ -278,18 +321,15 @@ if __name__ == "__main__":
         raise ValueError(f"Unknown MDP type: {type}")
 
     print("Created MDP!")
-    print("Running solver...")
     z3result = main(mdp, sensor_budget, threshold_terms, memory_budget, strict_less)
 
     if z3result.result == sat:
         print("Success")
         bmssp_result = ParseModel.parse_model(z3result)
         bmssp_result.print()
-
     elif z3result.result == unsat:
         print('No solution')
-        print("Time taken: ", z3result.solve_time, " seconds")
     else:
         print('Unknown')
-
+    print("Time taken: ", z3result.solve_time, " seconds")
     print("Done!")
