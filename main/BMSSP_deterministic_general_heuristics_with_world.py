@@ -20,7 +20,7 @@ reachable_vars = dict()
 used_memory_state_vars = dict()
 bot = 'bot'
 
-enabled_world_specific_heuristics = ['trend 1', 'trend 2', 'trend 3', 'trend 4', 'trend 5', 'trend 6', 'trend 7', 'trend 8', 'trend 9', 'theorem 5']
+enabled_world_specific_heuristics = ['line strategy and sensor', 'line special', 'line memory', 'grid memoryless', 'grid memory', 'grid sensor', 'maze memoryless', 'maze memory', 'maze sensor', 'line memoryless']
 
 min_exp_rew = Real('min_exp_rew')
 
@@ -139,33 +139,33 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
     minimize_mode = not threshold_terms
     solver = Optimize() if minimize_mode else Solver()
 
-    # Trend 3
-    if 'trend 3' in enabled_world_specific_heuristics:
+    # line memory
+    if 'line memory' in enabled_world_specific_heuristics:
         if mdp.type() == "line" and sensor_budget >= 2 and memory_budget >= 2:
             memory_budget = 2
     
-    # Theorem 5        
-    if 'theorem 5' in enabled_world_specific_heuristics:
+    # line memoryless        
+    if 'line memoryless' in enabled_world_specific_heuristics:
         if mdp.type() == "line" and sensor_budget >= floor(n/2):
             memory_budget = 1
 
-    #Trend 5
-    if 'trend 5' in enabled_world_specific_heuristics:
+    #grid memory
+    if 'grid memory' in enabled_world_specific_heuristics:
         if mdp.type() == "grid" and memory_budget >= 2:
             memory_budget = 2
 
-    #Trend 4
-    if 'trend 4' in enabled_world_specific_heuristics:
+    #grid memoryless
+    if 'grid memoryless' in enabled_world_specific_heuristics:
         if mdp.type() == "grid" and sensor_budget >= n-1:
             memory_budget = 1
 
-    #Trend 8
-    if 'trend 8' in enabled_world_specific_heuristics:
+    #maze memory
+    if 'maze memory' in enabled_world_specific_heuristics:
         if mdp.type() == "maze" and sensor_budget >= 1 and memory_budget >= 4:
             memory_budget = 4
 
-    #Trend 7
-    if 'trend 7' in enabled_world_specific_heuristics:
+    #maze memoryless
+    if 'maze memoryless' in enabled_world_specific_heuristics:
         if mdp.type() == "maze" and sensor_budget >= floor(3*n/2)-1:
             memory_budget = 1
 
@@ -279,16 +279,16 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
     add_general_heuristics(solver, mdp, memory_budget, states)
 
     # add world specific heuristics (e.g. for line, grid, maze worlds)
-    if 'trend 1' in enabled_world_specific_heuristics:
+    if 'line strategy and sensor' in enabled_world_specific_heuristics:
         add_trend_1(solver, mdp, memory_budget, sensor_budget, add_constraint, y, theta, delta, states, n, bot)
 
-    if 'trend 2' in enabled_world_specific_heuristics:    
+    if 'line special' in enabled_world_specific_heuristics:    
         add_trend_2(solver, mdp, memory_budget, sensor_budget, add_constraint, y, theta, delta, states, n, bot)
 
-    if 'trend 6' in enabled_world_specific_heuristics:   
+    if 'grid sensor' in enabled_world_specific_heuristics:   
         add_trend_6(solver, mdp, memory_budget, sensor_budget, add_constraint, y, theta, delta, states, n, bot)
 
-    if 'trend 9' in enabled_world_specific_heuristics:    
+    if 'maze sensor' in enabled_world_specific_heuristics:    
         add_trend_9(solver, mdp, memory_budget, sensor_budget, add_constraint, y, theta, delta, states, n, bot)
 
 
