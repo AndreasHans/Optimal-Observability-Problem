@@ -1,0 +1,30 @@
+familz,type,size,budget,memory,threshold
+general heuristics, line, x, 2, 8,
+trend3, line, x, 2, 8,
+general heuristics, line, x, 2, 3,
+trend3, line, x, 2, 3,  
+general heuristics, line, x, 2, 2,
+trend3, line, x, 2, 2, 
+general heuristics, line, x, 5, 8,
+trend3, line, x, 5, 8, 
+general heuristics, line, x, 5, 3,
+trend3, line, x, 5, 3,
+general heuristics, line, x, 5, 2,
+trend3, line, x, 5, 2, 
+
+general heuristics, line, y, 2, 8,
+trend3, line, y, 2, 8, 
+general heuristics, line, y, 2, 3,
+trend3, line, y, 2, 3, 
+general heuristics, line, y, 2, 2,
+trend3, line, y, 2, 2, 
+general heuristics, line, y, 5, 8,
+trend3, line, y, 5, 8, 
+general heuristics, line, y, 5, 3,
+trend3, line, y, 5, 3,
+general heuristics, line, y, 5, 2,
+trend3, line, y, 5, 2, 
+
+
+
+reasoning: need to check high memory vs low and repeat the process with more budget. 

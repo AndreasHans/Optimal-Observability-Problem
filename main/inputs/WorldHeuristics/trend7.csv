@@ -1,0 +1,10 @@
+family,type,size,budget,memory,threshold
+general heuristics, maze, 9, 14, 6,
+trend7, maze, 9, 14, 6,
+general heuristics, maze, 9, 14, 4,
+trend7, maze, 9, 14, 4,
+general heuristics, maze, 9, 14, 2,
+trend7, maze, 9, 14, 2, 
+general heuristics, maze, 9, 14, 1,
+trend7, maze, 9, 14, 1, 
+
