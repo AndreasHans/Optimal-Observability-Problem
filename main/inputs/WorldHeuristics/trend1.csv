@@ -1,0 +1,31 @@
+family,type,size,budget,memory,threshold
+general heuristics, line, , 2, 2
+trend1, line, , 2, 2
+general heuristics, line, , 3, 2
+trend1, line, , 3, 2
+general heuristics, line, , 5, 2
+trend1, line, , 5, 2
+general heuristics, line, , 10, 2
+trend1, line, , 10, 2
+general heuristics, line, , 20, 2
+trend1, line, , 20, 2
+general heuristics, line, , 49, 2
+
+trend1, line, , 49, 2
+
+general heuristics, line, , 2, 4
+trend1, line, , 2, 4
+general heuristics, line, , 3, 4
+trend1, line, , 3, 4
+general heuristics, line, , 5, 4
+trend1, line, , 5, 4
+general heuristics, line, , 10, 4
+trend1, line, , 10, 4
+general heuristics, line, , 20, 4
+trend1, line, , 20, 4
+general heuristics, line, , 49, 4
+trend1, line, , 49, 4
+
+
+Reasoning: because this should hold for any memory, and we later restrict memory, 
+i do not belive more than a single extra memory is neceassry for the test

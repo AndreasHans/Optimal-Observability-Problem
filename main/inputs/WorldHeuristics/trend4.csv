@@ -1,0 +1,10 @@
+family,type,size,budget,memory,threshold
+general heuristics, grid, 31, 30, 2,
+trend4, grid, 31, 30, 2, 
+general heuristics, grid, 31, 45, 1,
+trend4, grid, 31, 45, 1, 
+
+general heuristics, grid, 21, 20, 2,
+trend4, grid, 21, 20, 2, 
+general heuristics, grid, 21, 20, 1,
+trend4, grid, 21, 20, 1, 
