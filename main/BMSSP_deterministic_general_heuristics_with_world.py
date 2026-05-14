@@ -136,6 +136,7 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
     # If threshold_terms is None/empty, run in minimization mode using Optimize();
     # otherwise run in threshold-check mode using Solver().
     print("Adding constraints...")
+    n = mdp.size()
     minimize_mode = not threshold_terms
     solver = Optimize() if minimize_mode else Solver()
 
@@ -166,7 +167,7 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
 
     #maze memoryless
     if 'maze memoryless' in enabled_world_specific_heuristics:
-        if mdp.type() == "maze" and sensor_budget >= floor(3*n/2)-1:
+        if mdp.type() == "maze" and sensor_budget >= (3/2)*(n-1):
             memory_budget = 1
 
 
