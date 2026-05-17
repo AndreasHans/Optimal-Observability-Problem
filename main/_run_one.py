@@ -17,6 +17,7 @@ import traceback
 
 from z3 import sat, unsat
 
+import BMSSP_deterministic_general_heuristics_with_world
 from MDPVariants import grid_corner_n, line_n, maze_n
 from ParseModel import ParseModel
 
@@ -26,8 +27,7 @@ import BMSSP_deterministic_memory_symmetry
 import BMSSP_deterministic_MemoryRestrict
 import BMSSP_det_forced_action
 import BMSSP_det_forced_restricted
-import BMSSP_deterministic_W_Heuristics
-
+import BMSSP_deterministic_general_heuristics
 
 
 def build_mdp(mdp_type: str, size: int):
@@ -104,8 +104,10 @@ def main():
         solver_module = BMSSP_det_forced_restricted
     elif family == 'forced': #optimal action heuristic
         solver_module = BMSSP_det_forced_action 
-    elif family == 'heuristic': #use of the results of the heuristiscs
-        solver_module = BMSSP_deterministic_W_Heuristics
+    elif family == 'general heuristics': #use of the results of the heuristiscs
+        solver_module = BMSSP_deterministic_general_heuristics
+    elif family == 'general heuristics and world': #use of the results of the heuristiscs
+        solver_module = BMSSP_deterministic_general_heuristics_with_world
     else:
         raise ValueError(f"Unknown family: {args.family}")
 
