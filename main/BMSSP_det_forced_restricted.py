@@ -213,9 +213,7 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
     
     #adds heuristics for specific problems
     if mdp.type() == "line":
-        #for n in range(floor(mdp.initial_states_len()/2)):
-        for n in range(memory_budget):
-            
+        for n in range(floor(mdp.initial_states_len()/2)):
             for c in range(memory_budget): 
                 add_constraint(solver, Implies(y(n), theta(c,n,"right") == True))
     elif mdp.type() == "maze":

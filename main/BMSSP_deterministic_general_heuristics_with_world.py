@@ -20,8 +20,8 @@ reachable_vars = dict()
 used_memory_state_vars = dict()
 bot = 'bot'
 
-enabled_world_specific_heuristics = ['line strategy and sensor', 'line special', 'line memory', 'grid memoryless', 'grid memory', 'grid sensor', 'maze memoryless', 'maze memory', 'maze sensor', 'line memoryless']
-
+#enabled_world_specific_heuristics = ['line strategy and sensor', 'line special', 'line memory', 'grid memoryless', 'grid memory', 'grid sensor', 'maze memoryless', 'maze memory', 'maze sensor', 'line memoryless']
+enabled_world_specific_heuristics = ['maze memory', 'grid memoryless']
 min_exp_rew = Real('min_exp_rew')
 
 def init_variables(mdp:MDP, memory_budget: Int) -> None:
@@ -111,15 +111,7 @@ def add_general_heuristics(solver, mdp, memory_budget, states):
             for c in range(memory_budget):
                 add_constraint(solver, Implies(y(n), theta(c,n,"left")== True))
     elif mdp.type() == "grid":
-        #ensures the strategy is the same if the location is know
-        for o in states:
-            for a in mdp.actions():
-                #for each observation, ensure: for a given action, all strategies are equal
-                 add_constraint(solver, Implies(y(o), all_equal_theta(memory_budget, o, a)) )
         
-        for c2 in range(memory_budget):
-            #Technically works, but errases all gaing from the theta. wTakes a horrendus time if done alone
-            add_constraint(solver, Implies(y(o), all_equal_delta(c2, o, memory_budget)))
         for z in range(1,mdp.size()+1):
             for x in range(z,mdp.size()):
                 location = (z-1)*mdp.size() + x

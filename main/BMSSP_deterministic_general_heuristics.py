@@ -202,12 +202,9 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
 
     
     
-    
     #adds heuristics for specific problems
     if mdp.type() == "line":
-        #for n in range(floor(mdp.initial_states_len()/2)):
-        for n in range(memory_budget):
-            
+        for n in range(floor(mdp.initial_states_len()/2)):            
             for c in range(memory_budget): 
                 add_constraint(solver, Implies(y(n), theta(c,n,"right") == True))
     elif mdp.type() == "maze":
@@ -220,16 +217,6 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
             for c in range(memory_budget):
                 add_constraint(solver, Implies(y(n), theta(c,n,"left")== True))
     elif mdp.type() == "grid":
-        #ensures the strategy is the same if the location is know
-        for o in states:
-            for a in mdp.actions():
-                #for each observation, ensure: for a given action, all strategies are equal
-                 add_constraint(solver, Implies(y(o), all_equal_theta(memory_budget, o, a)) )
-        
-        for c2 in range(memory_budget):
-            #Technically works, but errases all gaing from the theta. wTakes a horrendus time if done alone
-            add_constraint(solver, Implies(y(o), all_equal_delta(c2, o, memory_budget)))
-
         for z in range(1,mdp.size()+1):
             for x in range(z,mdp.size()):
                 location = (z-1)*mdp.size() + x
