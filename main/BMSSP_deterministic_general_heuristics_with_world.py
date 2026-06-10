@@ -20,7 +20,11 @@ reachable_vars = dict()
 used_memory_state_vars = dict()
 bot = 'bot'
 
-enabled_world_specific_heuristics = ['line strategy and sensor', 'line special', 'line memory', 'grid memoryless', 'grid memory', 'grid sensor', 'maze memoryless', 'maze memory', 'maze sensor', 'line memoryless']
+#enabled_world_specific_heuristics = ['line strategy and sensor', 'line special', 'line memory', 'grid memoryless', 'grid memory', 'grid sensor', 'maze memoryless', 'maze memory', 'maze sensor', 'line memoryless']
+
+enabled_world_specific_heuristics = []
+enabled_world_specific_heuristics = ['maze sensor']
+
 
 min_exp_rew = Real('min_exp_rew')
 
@@ -264,12 +268,12 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
 
     for c in range(memory_budget):
         for o in states:
-            add_constraint(solver, PbEq([(theta(c,o,a), 1) for a in mdp.actions()], 1))
+            add_constraint(solver, Implies(y(o), PbEq([(theta(c,o,a), 1) for a in mdp.actions()], 1)))
         add_constraint(solver, PbEq([(theta(c,bot,a), 1) for a in mdp.actions()], 1))
 
     for c in range(memory_budget):
         for o in states:
-            add_constraint(solver, PbEq([(delta(c,o,c2), 1) for c2 in range(memory_budget)], 1))
+            add_constraint(solver, Implies(y(o), PbEq([(delta(c,o,c2), 1) for c2 in range(memory_budget)], 1)))
         add_constraint(solver, PbEq([(delta(c,bot,c2), 1) for c2 in range(memory_budget)], 1))
 
     # Sensor budget constraint
