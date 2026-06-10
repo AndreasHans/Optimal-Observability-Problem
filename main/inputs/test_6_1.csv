@@ -1,117 +1,113 @@
 family,type,size,budget,memory,threshold
-deterministic,line,501,1,2,
-symmetry,line,501,1,2,
-deterministic,line,501,1,3,
-symmetry,line,501,1,3,
-deterministic,line,501,1,4,
-symmetry,line,501,1,4,
-deterministic,line,501,1,5,
-symmetry,line,501,1,5,
-deterministic,line,501,1,6,
-symmetry,line,501,1,6,
-deterministic,line,501,1,7,
-symmetry,line,501,1,7,
 
-deterministic,line,501,5,2,
-symmetry,line,501,5,2,
-deterministic,line,501,5,3,
-symmetry,line,501,5,3,
-deterministic,line,501,5,4,
-symmetry,line,501,5,4,
-deterministic,line,501,5,5,
-symmetry,line,501,5,5,
-deterministic,line,501,5,6,
-symmetry,line,501,5,6,
-deterministic,line,501,5,7,
-symmetry,line,501,5,7,
+deterministic,line,501,1,2, <=250
+symmetry,line,501,1,2,<=250
+deterministic,line,501,1,3,<=250
+symmetry,line,501,1,3,<=250
+deterministic,line,501,1,4,<=250
+symmetry,line,501,1,4,<=250
+deterministic,line,501,1,5,<=250
+symmetry,line,501,1,5,<=250
+deterministic,line,501,1,6,<=250
+symmetry,line,501,1,6,<=250
+deterministic,line,501,1,7,<=250
+symmetry,line,501,1,7,<=250
 
-deterministic,line,501,10,2,
-symmetry,line,501,10,2,
-deterministic,line,501,10,3,
-symmetry,line,501,10,3,
-deterministic,line,501,10,4,
-symmetry,line,501,10,4,
-deterministic,line,501,10,5,
-symmetry,line,501,10,5,
-deterministic,line,501,10,6,
-symmetry,line,501,10,6,
-deterministic,line,501,10,7,
-symmetry,line,501,10,7,
+deterministic,line,501,5,2,<=250
+symmetry,line,501,5,2,<=250
+deterministic,line,501,5,3,<=250
+symmetry,line,501,5,3,<=250
+deterministic,line,501,5,4,<=250
+symmetry,line,501,5,4,<=250
+deterministic,line,501,5,5,<=250
+symmetry,line,501,5,5,<=250
+deterministic,line,501,5,6,<=250
+symmetry,line,501,5,6,<=250
+deterministic,line,501,5,7,<=250
+symmetry,line,501,5,7,<=250
 
-deterministic,grid,15,1,2,
-symmetry,grid,15,1,2,
-deterministic,grid,15,1,3,
-symmetry,grid,15,1,3,
-deterministic,grid,15,1,4,
-symmetry,grid,15,1,4,
-deterministic,grid,15,1,5,
-symmetry,grid,15,1,5,
-deterministic,grid,15,1,6,
-symmetry,grid,15,1,6,
-deterministic,grid,15,1,7,
-symmetry,grid,15,1,7,
+deterministic,line,501,10,2,<=250
+symmetry,line,501,10,2,<=250
+deterministic,line,501,10,3,<=250
+symmetry,line,501,10,3,<=250
+deterministic,line,501,10,4,<=250
+symmetry,line,501,10,4,<=250
+deterministic,line,501,10,5,<=250
+symmetry,line,501,10,5,<=250
+deterministic,line,501,10,6,<=250
+symmetry,line,501,10,6,<=250
+deterministic,line,501,10,7,<=250
+symmetry,line,501,10,7,<=250
 
-deterministic,grid,15,5,2,
-symmetry,grid,15,5,2,
-deterministic,grid,15,5,3,
-symmetry,grid,15,5,3,
-deterministic,grid,15,5,4,
-symmetry,grid,15,5,4,
-deterministic,grid,15,5,5,
-symmetry,grid,15,5,5,
-deterministic,grid,15,5,6,
-symmetry,grid,15,5,6,
-deterministic,grid,15,5,7,
-symmetry,grid,15,5,7,
+deterministic,grid,15,1,2, <=18
+symmetry,grid,15,1,2, <=18
+deterministic,grid,15,1,3,<=18
+symmetry,grid,15,1,3,<=18
+deterministic,grid,15,1,4,<=18
+symmetry,grid,15,1,4,<=18
+deterministic,grid,15,1,5,<=18
+symmetry,grid,15,1,5,<=18
+deterministic,grid,15,1,6,<=18
+symmetry,grid,15,1,6,<=18
+deterministic,grid,15,1,7,<=18
+symmetry,grid,15,1,7,<=18
 
-deterministic,grid,15,10,2,
-symmetry,grid,15,10,2,
-deterministic,grid,15,10,3,
-symmetry,grid,15,10,3,
-deterministic,grid,15,10,4,
-symmetry,grid,15,10,4,
-deterministic,grid,15,10,5,
-symmetry,grid,15,10,5,
-deterministic,grid,15,10,6,
-symmetry,grid,15,10,6,
-deterministic,grid,15,10,7,
-symmetry,grid,15,10,7,
+deterministic,grid,15,5,2,<=18
+symmetry,grid,15,5,2,<=18
+deterministic,grid,15,5,3,<=18
+symmetry,grid,15,5,3,<=18
+deterministic,grid,15,5,4,<=18
+symmetry,grid,15,5,4,<=18
+deterministic,grid,15,5,5,<=18
+symmetry,grid,15,5,5,<=18
+deterministic,grid,15,5,6,<=18
+symmetry,grid,15,5,6,<=18
+deterministic,grid,15,5,7,<=18
+symmetry,grid,15,5,7,<=18
 
-deterministic,maze,7,1,2,
-symmetry,maze,7,1,2,
-deterministic,maze,7,1,3,
-symmetry,maze,7,1,3,
-deterministic,maze,7,1,4,
-symmetry,maze,7,1,4,
-deterministic,maze,7,1,5,
-symmetry,maze,7,1,5,
-deterministic,maze,7,1,6,
-symmetry,maze,7,1,6,
-deterministic,maze,7,1,7,
-symmetry,maze,7,1,7,
+deterministic,grid,15,10,2,<=18
+symmetry,grid,15,10,2,<=18
+deterministic,grid,15,10,3,<=18
+symmetry,grid,15,10,3,<=18
+deterministic,grid,15,10,4,<=18
+symmetry,grid,15,10,4,<=18
+deterministic,grid,15,10,5,<=18
+symmetry,grid,15,10,5,<=18
+deterministic,grid,15,10,6,<=18
+symmetry,grid,15,10,6,<=18
+deterministic,grid,15,10,7,<=18
+symmetry,grid,15,10,7,<=18
 
-deterministic,maze,7,3,2,
-symmetry,maze,7,3,2,
-deterministic,maze,7,3,3,
-symmetry,maze,7,3,3,
-deterministic,maze,7,3,4,
-symmetry,maze,7,3,4,
-deterministic,maze,7,3,5,
-symmetry,maze,7,3,5,
-deterministic,maze,7,3,6,
-symmetry,maze,7,3,6,
-deterministic,maze,7,3,7,
-symmetry,maze,7,3,7,
 
-deterministic,maze,7,5,2,
-symmetry,maze,7,5,2,
-deterministic,maze,7,5,3,
-symmetry,maze,7,5,3,
-deterministic,maze,7,5,4,
-symmetry,maze,7,5,4,
-deterministic,maze,7,5,5,
-symmetry,maze,7,5,5,
-deterministic,maze,7,5,6,
-symmetry,maze,7,5,6,
-deterministic,maze,7,5,7,
-symmetry,maze,7,5,7,
+deterministic,maze,7,1,4,<= 18
+symmetry,maze,7,1,4,<= 18
+deterministic,maze,7,1,5,<= 18
+symmetry,maze,7,1,5,<= 18
+deterministic,maze,7,1,6,<= 18
+symmetry,maze,7,1,6,<= 18
+deterministic,maze,7,1,7,<= 18
+symmetry,maze,7,1,7,<= 18
+
+
+deterministic,maze,7,3,3,<= 18
+symmetry,maze,7,3,3,<= 18
+deterministic,maze,7,3,4,<= 18
+symmetry,maze,7,3,4,<= 18
+deterministic,maze,7,3,5,<= 18
+symmetry,maze,7,3,5,<= 18
+deterministic,maze,7,3,6,<= 18
+symmetry,maze,7,3,6,<= 18
+deterministic,maze,7,3,7,<= 18
+symmetry,maze,7,3,7,<= 18
+
+
+deterministic,maze,7,5,3,<= 18
+symmetry,maze,7,5,3,<= 18
+deterministic,maze,7,5,4,<= 18
+symmetry,maze,7,5,4,<= 18
+deterministic,maze,7,5,5,<= 18
+symmetry,maze,7,5,5,<= 18
+deterministic,maze,7,5,6,<= 18
+symmetry,maze,7,5,6,<= 18
+deterministic,maze,7,5,7,<= 18
+symmetry,maze,7,5,7,<= 18
