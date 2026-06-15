@@ -1,0 +1,22 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Optimal Observability Problem
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Andreas
+    family-names: Hansen
+  - given-names: Jeppe
+    family-names: Sørensen
+repository-code: >-
+  https://github.com/AndreasHans/Optimal-Observability-Problem
+abstract: >-
+  Implementation of SMT-solvers for the Optimal
+  Observability Problem
+license: MIT
+commit: 3ae7877bfb11dcd9a184cb9158673c764896f356
+version: '1.0'
