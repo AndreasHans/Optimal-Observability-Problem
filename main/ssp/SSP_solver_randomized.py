@@ -4,17 +4,21 @@ import sys
 
 from z3 import *
 
+
 # Make sibling modules in ../ importable when running this file directly.
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from MDP import MDP
-from MDPVariants import line_n
+from MDPVariants import line_n, maze_n
 import time
 
 x_vars = dict()
 pi_vars = dict()
 y_vars = dict()
 bot = 'bot'
+TIMEOUT = 1000 * 60 * 5 #the last digit it the number of miniuts
+
+min_exp_rew = Real('min_exp_rew')
 
 def init_variables(mdp:MDP) -> None:
     y_vars.clear()
@@ -50,7 +54,8 @@ def add_constraint(solver: Solver, constraint):
     solver.add(constraint)
 
 def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int]):
-    solver = Solver()
+    minimize_mode = not threshold_terms
+    solver = Optimize() if minimize_mode else Solver()
     
     states = list(mdp.states())
     goals = set(mdp.goals())
@@ -63,10 +68,17 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int]):
     for s in mdp.states():
         add_constraint(solver, pi(s) >= mdp.optimal_cost(s))
 
-    threshold = Q(threshold_terms[0], threshold_terms[1]) if len(threshold_terms) > 1 else threshold_terms[0]
 
+    
     # We want to check if the minimal expected cost is below some threshold
-    add_constraint(solver, Sum([pi(s) for s in initial_states]) *  Q(1, len(initial_states)) <= threshold)
+    add_constraint(solver, min_exp_rew == Sum([pi(s) for s in initial_states]) *  Q(1, len(initial_states)))
+
+    if minimize_mode:
+        solver.minimize(min_exp_rew)
+    else:
+        threshold = Q(threshold_terms[0], threshold_terms[1]) if len(threshold_terms) > 1 else threshold_terms[0]
+        add_constraint(solver, min_exp_rew <= threshold)
+
 
     # Expected cost/reward equations
     for s in mdp.states():
@@ -98,7 +110,7 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int]):
     # Sensor budget constraint
     add_constraint(solver, PbEq([(y(s), 1) for s in non_goal_states], sensor_budget))
 
-
+    #solver.set("timeout", TIMEOUT)
     cpu_start = time.process_time()
     result = solver.check()
     cpu_end = time.process_time()
@@ -120,8 +132,9 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: List[int]):
 
 if __name__ == "__main__":
 
-    n = 75
+    n = 9
 
-    mdp = line_n(n)
+    #mdp = line_n(n)
+    mdp = maze_n(n)
 
-    main(mdp = mdp, sensor_budget=(n-1)//2, threshold_terms=[(n-1)//2+1, 2])
+    main(mdp = mdp, sensor_budget=0, threshold_terms=[302])
