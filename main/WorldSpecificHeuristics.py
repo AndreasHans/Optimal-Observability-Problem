@@ -30,6 +30,9 @@ def add_trend_2(solver, mdp, memory_budget, sensor_budget, add_constraint, y, th
     if mdp.type() == "line" and sensor_budget == 1 and memory_budget >= 2:
         u = min(memory_budget-2, floor(n/4))
         U = [s for s in [u-1,u,u+1] if s >= 0 and s < n]
+        for s in states:
+            if not s in U:
+                add_constraint(solver, y(s) == False)
         add_constraint(solver, Or([y(s) for s in U]))
 
 def add_trend_6(solver, mdp, memory_budget, sensor_budget, add_constraint, y, theta, delta, states, n, bot):
@@ -44,6 +47,7 @@ def add_trend_6(solver, mdp, memory_budget, sensor_budget, add_constraint, y, th
 def add_trend_9(solver, mdp, memory_budget, sensor_budget, add_constraint, y, theta, delta, states, n, bot):
     if mdp.type() == "maze":
         R = (n-1)//2
+        U = []
         for i in range(1, sensor_budget + 1):
             if 1 <= i <= R + 1:
                 u = i - 1
@@ -53,4 +57,35 @@ def add_trend_9(solver, mdp, memory_budget, sensor_budget, add_constraint, y, th
                 u = i - R
             else:
                 u = i
-            add_constraint(solver, y(u))
+            U.append(u)
+
+        for s in states:
+            if s in U:
+                add_constraint(solver, y(s) == True)
+            else:                
+                add_constraint(solver, y(s) == False)
+
+        if memory_budget == 1:
+            add_constraint(solver, theta(0, bot, "up") == True)
+            add_constraint(solver, delta(0, bot, 0) == True)
+        elif memory_budget == 2:
+            add_constraint(solver, theta(0, bot, "up") == True)
+            add_constraint(solver, theta(1, bot, "left") == True)
+            add_constraint(solver, delta(0, bot, 1) == True)
+            add_constraint(solver, delta(1, bot, 0) == True)
+        elif memory_budget == 3:
+            add_constraint(solver, theta(0, bot, "up") == True)
+            add_constraint(solver, theta(1, bot, "left") == True)
+            add_constraint(solver, theta(2, bot, "down") == True)
+            add_constraint(solver, delta(0, bot, 1) == True)
+            add_constraint(solver, delta(1, bot, 0) == True)
+            add_constraint(solver, delta(2, bot, 2) == True)
+        elif memory_budget == 4:
+            add_constraint(solver, theta(0, bot, "up") == True)
+            add_constraint(solver, theta(1, bot, "left") == True)
+            add_constraint(solver, theta(2, bot, "down") == True)
+            add_constraint(solver, theta(3, bot, "right") == True)
+            add_constraint(solver, delta(0, bot, 1) == True)
+            add_constraint(solver, delta(1, bot, 0) == True)
+            add_constraint(solver, delta(2, bot, 3) == True)
+            add_constraint(solver, delta(3, bot, 2) == True)
