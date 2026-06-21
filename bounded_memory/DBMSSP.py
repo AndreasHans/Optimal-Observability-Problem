@@ -21,7 +21,7 @@ y_vars = dict()
 reachable_vars = dict()
 used_memory_state_vars = dict()
 bot = 'bot'
-TIMEOUT_MS =   1000 * 120 #timeout for individual runs. Second part of equation is in seconds
+TIMEOUT_MS =   1000 * 120#timeout for individual runs. Second part of equation is in seconds
 
 
 enabled_world_specific_heuristics =[] # [ 'line special', 'grid sensor', , 'maze memory', ]
@@ -314,44 +314,45 @@ if __name__ == "__main__":
         raise ValueError(f"Unknown MDP type: {type}")
 
     print("Created MDP!")
-    
-    if threshold_terms: #main algo can only run for non optimization challenge
+    if threshold_terms: #main algo is not proven complete, as such, for the optimization variant,  
+                        #any answer delivered from the heuristiscs must be verified by the heuristic less variant
+                        #as such, it is more advantageous to ignor the heuristics when optimizing
         if type == "line":
             if sensor_budget >= floor(n/2):#step 1
-                 print("attempting ML")
-                 z3result = main(mdp, sensor_budget, threshold_terms, 1, strict_less, "")
-                 if z3result.result == sat:
-                     result(z3result)
+                    print("attempting ML")
+                    z3result = main(mdp, sensor_budget, threshold_terms, 1, strict_less, "")
+                    if z3result.result == sat:
+                        result(z3result)
             if sensor_budget >= 2 and memory_budget >= 2: # step 2
                 print("attempting SM SPS")
                 z3result = main(mdp, sensor_budget, threshold_terms, 2, strict_less, "line")
                 if z3result.result == sat:
-                     result(z3result)
+                        result(z3result)
             if sensor_budget >= 2 and memory_budget >= 2: # step 3
                 print("attempting SM")
                 z3result = main(mdp, sensor_budget, threshold_terms, 2, strict_less, "")
                 if z3result.result == sat:
-                     result(z3result)
+                        result(z3result)
             print("attempting SPS")         
             z3result = main(mdp, sensor_budget, threshold_terms, memory_budget, strict_less, "line") #step 4
             if z3result.result == sat:
                 result(z3result) 
         elif type == "grid":
             if sensor_budget >= n-1:#step 1
-                 print("attempting ML")
-                 z3result = main(mdp, sensor_budget, threshold_terms, 1, strict_less, "")
-                 if z3result.result == sat:
-                     result(z3result)
+                    print("attempting ML")
+                    z3result = main(mdp, sensor_budget, threshold_terms, 1, strict_less, "")
+                    if z3result.result == sat:
+                        result(z3result)
             if memory_budget >= 2: # step 2
                 print("attempting SM SPS")
                 z3result = main(mdp, sensor_budget, threshold_terms, 2, strict_less, "grid")
                 if z3result.result == sat:
-                     result(z3result)
+                        result(z3result)
             if memory_budget >= 2: # step 3
                 print("attempting SM")
                 z3result = main(mdp, sensor_budget, threshold_terms, 2, strict_less, "")
                 if z3result.result == sat:
-                     result(z3result)
+                        result(z3result)
             print("attempting SPS")         
             z3result = main(mdp, sensor_budget, threshold_terms, memory_budget, strict_less, "grid") #step 4
             if z3result.result == sat:
@@ -366,7 +367,7 @@ if __name__ == "__main__":
                 print("attempting SM")
                 z3result = main(mdp, sensor_budget, threshold_terms, 4, strict_less, "")
                 if z3result.result == sat:
-                     result(z3result)
+                        result(z3result)
     z3result = main(mdp, sensor_budget, threshold_terms, memory_budget, strict_less, "") #step 5   
     result(z3result)
 

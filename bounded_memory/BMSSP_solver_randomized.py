@@ -17,6 +17,7 @@ pi_vars = dict()
 y_vars = dict()
 reachable_vars = dict()
 bot = 'bot'
+TIMEOUT_MS =   1000 * 120 * 2 #timeout for individual runs. Second part of equation is in seconds
 
 min_exp_rew = Real('min_exp_rew')
 
@@ -178,7 +179,7 @@ def main(mdp: MDP, sensor_budget: int, threshold_terms: Optional[List[int]], mem
 
     # Sensor budget constraint
     add_constraint(solver, PbEq([(y(s), 1) for s in non_goal_states], sensor_budget))
-
+    #solver.set("timeout", TIMEOUT_MS)
     cpu_start = time.process_time()
     result = solver.check()
     cpu_end = time.process_time()

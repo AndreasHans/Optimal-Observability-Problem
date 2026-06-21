@@ -12,7 +12,15 @@ class BMSSPResult:
 
     def print(self):
 
+        print(f"Solve time: {self.solve_time} seconds")
+
+       
+
         enabled_sensors = [s for s in self.y_vars if is_true(self.y_vars[s])]
+
+        for s in enabled_sensors:
+            val = f"y({s})"
+            print(val)
 
         for s, c in self.pi_vars:
             if c == 0:
@@ -37,14 +45,7 @@ class BMSSPResult:
                 elif is_rational_value(v) and v.numerator_as_long() != 0:
                     val = f"delta({c}, {o}, {c2}) = {v}"
                     print(val)
-
-
-        for s in enabled_sensors:
-            val = f"y({s})"
-            print(val)
-
-        print(f"Solve time: {self.solve_time} seconds")
-
+                    
         if len(self.min_exp_rew) == 2:
             print(f"min_exp_rew = {self.min_exp_rew[0]}/{self.min_exp_rew[1]}")
         else:
