@@ -19,27 +19,15 @@ The standard workflow is:
 ## Requirements
 
 - Python 3.10+ (3.11+ recommended)
-- `z3-solver`
-
-Optional:
-
-- `stormpy` for scripts like `Storm_iterative.py`
+- `z3-solver==4.13.0`
 
 ## Setup
 
 From this folder:
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-python -m pip install z3-solver
-```
-
-Optional Storm support:
-
-```powershell
-python -m pip install stormpy
+python -m pip install -r requirements.txt
 ```
 
 ## Run a Batch Experiment
@@ -129,5 +117,5 @@ python _run_one.py deterministic line 15 1 2 "<=7" --dump output\single-run.txt
 
 - If `status=error`, inspect terminal output first; malformed CSV fields are a common cause.
 - If runs timeout, reduce `size` or try a heuristic family (`symmetry`, `memory`, `forced`, `restricted`).
-- If Z3 import fails, verify the active interpreter is your local `.venv`.
+- If Z3 import fails, verify your Python interpreter has `z3-solver==4.13.0` installed.
 
