@@ -21,7 +21,7 @@ y_vars = dict()
 reachable_vars = dict()
 used_memory_state_vars = dict()
 bot = 'bot'
-TIMEOUT_MS =   1000 * 120 * 1200#timeout for individual runs. Second part of equation is in seconds
+TIMEOUT_MS =   1000 * 120#timeout for individual runs. Second part of equation is in seconds
 
 
 enabled_world_specific_heuristics =[] # [ 'line special', 'grid sensor', , 'maze memory', ]
